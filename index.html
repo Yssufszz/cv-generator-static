@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Berkas. v2.2.0 -->
+<!-- Berkas. v2.3.0 -->
 <html lang="id" data-theme="light">
 <head>
 <meta charset="utf-8" />
@@ -14,9 +14,30 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<link rel="stylesheet" href="styles.css?v=v2.2.0">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<link rel="stylesheet" href="styles.css?v=v2.3.0">
 </head>
 <body data-tab="form">
+<div class="auth-gate" id="authGate" hidden>
+  <div class="auth-card">
+    <p class="brand-mark">Berkas.</p>
+    <p class="brand-sub">CV &middot; ATS Friendly</p>
+    <h2 id="authTitle">Masuk untuk membuka CV-mu</h2>
+    <p class="hint" id="authHint">Draf CV tersimpan di akunmu, jadi bisa dibuka dari perangkat mana pun. Belum punya akun? Daftar dulu, gratis.</p>
+    <div class="seg" role="group" aria-label="Pilih masuk atau daftar">
+      <button type="button" id="authTabLogin" aria-pressed="true">Masuk</button>
+      <button type="button" id="authTabRegister" aria-pressed="false">Daftar</button>
+    </div>
+    <label class="hint" for="authEmail">Email</label>
+    <input type="email" id="authEmail" autocomplete="email" placeholder="nama@email.com">
+    <label class="hint" for="authPassword">Password</label>
+    <input type="password" id="authPassword" autocomplete="current-password" placeholder="Minimal 6 karakter">
+    <button class="btn primary" id="authSubmit" type="button">Masuk</button>
+    <button class="btn small" id="authForgot" type="button">Lupa password?</button>
+    <p class="hint" id="authMsg" aria-live="polite"></p>
+    <p class="hint" id="authConfigMsg" hidden>Supabase situs ini belum dikonfigurasi. Di dashboard Vercel, isi environment variable SUPABASE_URL dan SUPABASE_ANON_KEY, lalu deploy ulang.</p>
+  </div>
+</div>
 <div class="wrap">
 
   <header class="site-header">
@@ -34,6 +55,8 @@
       <button class="btn" id="btnTheme" type="button" aria-label="Ganti mode terang atau gelap"></button>
       <button class="btn" id="btnFocus" type="button" aria-pressed="false">Mode Fokus</button>
       <button class="btn" id="btnWizard" type="button" aria-pressed="false">Mode Wizard</button>
+      <span class="hint" id="authUserLabel" hidden></span>
+      <button class="btn" id="btnLogout" type="button" hidden>Keluar</button>
       <button class="btn primary" id="btnPdf" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
         Unduh PDF
@@ -180,7 +203,7 @@
       </div>
     </div>
   </div>
-  <footer class="site-foot"><span>Created by Yssufszz</span><span>Berkas. v2.2.0</span></footer>
+  <footer class="site-foot"><span>Created by Yssufszz</span><span>Berkas. v2.3.0</span></footer>
 </div>
 
 <datalist id="locList"></datalist>
@@ -218,6 +241,6 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="app.js?v=v2.2.0"></script>
+<script src="app.js?v=v2.3.0"></script>
 </body>
 </html>

@@ -1352,7 +1352,7 @@ function clearLocal(){
 /* ============================== Mode Fokus + peringatan tutup tab ============================== */
 var dirtySinceExport = false;
 var _origMarkSaved = markSaved;
-markSaved = function(){ dirtySinceExport = true; _origMarkSaved(); schedulePersist(); };
+markSaved = function(){ dirtySinceExport = true; _origMarkSaved(); schedulePersist(); scheduleServerSync(); };
 document.getElementById("btnFocus").addEventListener("click", function(){
   var on = document.body.classList.toggle("focus-on");
   this.setAttribute("aria-pressed", on ? "true" : "false");
@@ -1375,11 +1375,233 @@ window.addEventListener("beforeunload", function(e){
   }
 });
 
+/* ============================== Login wajib via Supabase (v2.3.0) ============================== */
+/* Model sync: SATU baris per user di tabel drafts, kolom data berisi seluruh bundle
+   {drafts, activeDraft, draftCounter} (foto dipotong, seperti localStorage).
+   Alasan: tidak butuh unique constraint tambahan di SQL yang sudah di-run user,
+   hapus/duplikat/reset draf tidak bisa "bangkit lagi" dari baris lama, dan
+   localStorage tetap menjadi cache. RLS di SQL memastikan user hanya bisa
+   membaca/menulis baris miliknya sendiri. Kunci service_role TIDAK PERNAH
+   dipakai di sini — hanya anon key (publishable) lewat /api/config atau
+   supabase-config.json, yang memang dirancang Supabase untuk frontend. */
+var supa = null, authUser = null, serverRowId = null, serverSyncTimer = null, authMode = "login";
+function authEls(id){ return document.getElementById(id); }
+function setAuthMsg(msg){
+  var el = authEls("authMsg");
+  if(el) el.textContent = msg || "";
+}
+function showGate(){
+  var g = authEls("authGate");
+  if(g) g.hidden = false;
+  document.body.classList.add("auth-locked");
+}
+function hideGate(){
+  var g = authEls("authGate");
+  if(g) g.hidden = true;
+  document.body.classList.remove("auth-locked");
+  var lbl = authEls("authUserLabel"), lo = authEls("btnLogout");
+  if(lbl && authUser){ lbl.textContent = authUser.email || ""; lbl.hidden = false; }
+  if(lo) lo.hidden = false;
+}
+function setAuthTab(mode){
+  authMode = mode;
+  var tl = authEls("authTabLogin"), tr = authEls("authTabRegister"), sb = authEls("authSubmit"), ti = authEls("authTitle");
+  if(tl) tl.setAttribute("aria-pressed", mode === "login" ? "true" : "false");
+  if(tr) tr.setAttribute("aria-pressed", mode === "register" ? "true" : "false");
+  if(sb) sb.textContent = mode === "login" ? "Masuk" : "Daftar";
+  if(ti) ti.textContent = mode === "login" ? "Masuk untuk membuka CV-mu" : "Daftar akun Berkas.";
+}
+async function loadSupabaseConfig(){
+  if(window.BERKAS_SUPABASE && window.BERKAS_SUPABASE.url && window.BERKAS_SUPABASE.anonKey){
+    return window.BERKAS_SUPABASE;
+  }
+  var sources = ["supabase-config.json", "/api/config"];
+  for(var i = 0; i < sources.length; i++){
+    try{
+      var r = await fetch(sources[i], { cache: "no-store" });
+      if(!r.ok) continue;
+      var j = await r.json();
+      if(j && j.url && j.anonKey) return { url: j.url, anonKey: j.anonKey };
+    }catch(e){ /* coba sumber berikutnya */ }
+  }
+  return null;
+}
+function stripPhotos(bundle){
+  var copy = JSON.parse(JSON.stringify(bundle));
+  (copy.drafts || []).forEach(function(d){
+    if(d.data){ d.data.photoData = null; d.data.photoName = ""; d.data.showPhoto = false; }
+  });
+  return copy;
+}
+function serverBundle(){
+  return stripPhotos({ drafts: drafts, activeDraft: activeDraft, draftCounter: draftCounter });
+}
+function applyServerBundle(bundle){
+  if(!bundle || !Array.isArray(bundle.drafts) || !bundle.drafts.length) return false;
+  var d0 = bundle.drafts[0];
+  if(!d0 || !d0.data || !d0.data.personal || !d0.data.items){
+    // Format lama: satu draf langsung di kolom data.
+    if(bundle.personal && bundle.items){
+      drafts = [{ name: "Draft 1", data: bundle }];
+      activeDraft = 0; draftCounter = 1; state = drafts[0].data; return true;
+    }
+    return false;
+  }
+  drafts = bundle.drafts;
+  activeDraft = (typeof bundle.activeDraft === "number" && bundle.activeDraft >= 0 && bundle.activeDraft < drafts.length) ? bundle.activeDraft : 0;
+  draftCounter = typeof bundle.draftCounter === "number" ? bundle.draftCounter : drafts.length;
+  state = drafts[activeDraft].data;
+  var maxId = 0;
+  drafts.forEach(function(d){
+    Object.keys((d.data && d.data.items) || {}).forEach(function(k){
+      (d.data.items[k] || []).forEach(function(it){ if(it.id && it.id > maxId) maxId = it.id; });
+    });
+  });
+  uid = maxId;
+  return true;
+}
+async function serverLoad(){
+  if(!supa || !authUser) return false;
+  try{
+    var res = await supa.from("drafts").select("id,data").eq("user_id", authUser.id).order("updated_at", { ascending: false }).limit(1).maybeSingle();
+    if(res.error || !res.data) return false;
+    serverRowId = res.data.id;
+    return applyServerBundle(res.data.data);
+  }catch(e){ return false; }
+}
+async function serverSave(){
+  if(!supa || !authUser) return;
+  var bundle = serverBundle();
+  try{
+    if(serverRowId){
+      var up = await supa.from("drafts").update({ data: bundle, name: drafts[activeDraft].name || "Draf CV" }).eq("id", serverRowId).eq("user_id", authUser.id);
+      if(!up.error) { markServerSaved(); return; }
+      serverRowId = null; // baris hilang (mis. dihapus manual) -> insert ulang di bawah
+    }
+    var ins = await supa.from("drafts").insert({ user_id: authUser.id, name: drafts[activeDraft].name || "Draf CV", data: bundle }).select("id").single();
+    if(!ins.error && ins.data) serverRowId = ins.data.id;
+    if(!ins.error) markServerSaved();
+  }catch(e){ /* diam: localStorage tetap jadi cache, sync berikutnya mencoba lagi */ }
+}
+function markServerSaved(){
+  var el = authEls("saveState");
+  if(el && authUser){
+    var d = new Date();
+    el.textContent = "Tersimpan otomatis ke akun " + authUser.email + " · " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0") + " — dan di browser ini sebagai cache.";
+  }
+}
+function scheduleServerSync(){
+  if(!supa || !authUser) return;
+  clearTimeout(serverSyncTimer);
+  serverSyncTimer = setTimeout(serverSave, 800);
+}
+function bindAuthForm(){
+  var tl = authEls("authTabLogin"), tr = authEls("authTabRegister");
+  if(tl) tl.addEventListener("click", function(){ setAuthTab("login"); setAuthMsg(""); });
+  if(tr) tr.addEventListener("click", function(){ setAuthTab("register"); setAuthMsg(""); });
+  var sb = authEls("authSubmit");
+  if(sb) sb.addEventListener("click", submitAuth);
+  var pw = authEls("authPassword");
+  if(pw) pw.addEventListener("keydown", function(e){ if(e.key === "Enter") submitAuth(); });
+  var fg = authEls("authForgot");
+  if(fg) fg.addEventListener("click", async function(){
+    var email = String((authEls("authEmail") || {}).value || "").trim();
+    if(!email){ setAuthMsg("Isi email dulu untuk reset password."); return; }
+    if(!supa){ setAuthMsg("Supabase belum dikonfigurasi."); return; }
+    setAuthMsg("Mengirim link reset…");
+    var r = await supa.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/" });
+    setAuthMsg(r.error ? ("Gagal mengirim link reset: " + r.error.message) : "Link reset dikirim ke emailmu — cek inbox/spam.");
+  });
+  var lo = authEls("btnLogout");
+  if(lo) lo.addEventListener("click", async function(){
+    try{ if(supa) await supa.auth.signOut(); }catch(e){}
+    window.location.reload();
+  });
+}
+async function submitAuth(){
+  var email = String((authEls("authEmail") || {}).value || "").trim();
+  var password = String((authEls("authPassword") || {}).value || "");
+  if(!email || password.length < 6){ setAuthMsg("Isi email dan password minimal 6 karakter."); return; }
+  if(!supa){ setAuthMsg("Supabase belum dikonfigurasi."); return; }
+  setAuthMsg(authMode === "login" ? "Memeriksa akun…" : "Mendaftarkan akun…");
+  try{
+    var r = authMode === "login"
+      ? await supa.auth.signInWithPassword({ email: email, password: password })
+      : await supa.auth.signUp({ email: email, password: password });
+    if(r.error){ setAuthMsg("Gagal: " + r.error.message); return; }
+    if(!r.data || !r.data.session){
+      // Confirm email aktif: user harus klik link verifikasi dulu.
+      setAuthMsg("Akun dibuat. Cek emailmu untuk verifikasi, lalu masuk di sini.");
+      setAuthTab("login");
+      return;
+    }
+    authUser = r.data.session.user;
+    var loaded = await serverLoad();
+    if(!loaded){
+      // Akun baru / belum ada draf server: unggah draf lokal saat ini sebagai awal.
+      await serverSave();
+    }
+    persistLocal();
+    hideGate();
+    syncAllUI();
+    toast(loaded ? "Selamat datang kembali — draf dari akunmu dimuat." : "Selamat datang — draf lokalmu disimpan ke akunmu.");
+  }catch(e){ setAuthMsg("Terjadi kesalahan, coba lagi."); }
+}
+async function initAuth(restoredLocal){
+  var gate = authEls("authGate");
+  if(!gate){ return; } // tanpa gate, jalan lokal seperti biasa
+  bindAuthForm();
+  setAuthTab("login");
+  showGate();
+  setAuthMsg("Memuat…");
+  try{
+    var cfg = await loadSupabaseConfig();
+    if(!cfg){
+      var host = String(window.location.hostname || "");
+      if(host.indexOf("vercel.app") >= 0){
+        var cm = authEls("authConfigMsg");
+        if(cm) cm.hidden = false;
+        setAuthMsg("Supabase belum dikonfigurasi di deployment Vercel ini.");
+        return; // tetap terkunci: login wajib, dan belum ada server untuk login
+      }
+      // GitHub Pages / lokal: tidak ada function server, jadi jalan mode lokal.
+      hideGate();
+      syncAllUI();
+      if(restoredLocal) toast("Draf terakhir dipulihkan dari browser ini. Foto tidak ikut tersimpan — pilih ulang kalau perlu.");
+      return;
+    }
+    if(!window.supabase || !window.supabase.createClient){
+      setAuthMsg("Gagal memuat pustaka Supabase. Periksa koneksi lalu refresh halaman.");
+      return;
+    }
+    supa = window.supabase.createClient(cfg.url, cfg.anonKey);
+    var sess = await supa.auth.getSession();
+    var user = sess && sess.data && sess.data.session ? sess.data.session.user : null;
+    if(!user){
+      setAuthMsg("");
+      return; // tetap di gate, tunggu login/daftar
+    }
+    authUser = user;
+    var loaded = await serverLoad();
+    persistLocal();
+    hideGate();
+    syncAllUI();
+    toast(loaded ? "Draf dari akunmu dimuat." : "Masuk sebagai " + (authUser.email || "") + ".");
+  }catch(e){
+    // Jangan pernah membuat editor hilang total karena error auth tak terduga.
+    if(String(window.location.hostname || "").indexOf("vercel.app") < 0){
+      hideGate();
+      syncAllUI();
+    } else {
+      setAuthMsg("Terjadi kesalahan saat memuat login. Coba refresh halaman.");
+    }
+  }
+}
+
 /* ============================== Init ============================== */
 var locDl = document.getElementById("locList");
 locDl.innerHTML = LOCATIONS.map(function(l){ return '<option value="'+esc(l)+'"></option>'; }).join("");
 themeLabel();
 var restored = restoreLocal();
-syncAllUI();
-if(restored){ toast("Draf terakhir dipulihkan dari browser ini. Foto tidak ikut tersimpan — pilih ulang kalau perlu."); }
+initAuth(restored);
 })();

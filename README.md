@@ -1,4 +1,4 @@
-# Berkas. v2.2.0
+# Berkas. v2.3.0
 
 Alat CV statis yang ramah ATS: isi data sendiri dari kosong, atur bagian, pilih desain formal, dan unduh PDF gratis.
 
