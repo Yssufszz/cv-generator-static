@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Berkas. v2.0.0 -->
 <html lang="id" data-theme="light">
 <head>
 <meta charset="utf-8" />
@@ -27,7 +28,6 @@
       <a href="#formCol">Isi Data</a>
       <a href="#designList">Desain</a>
       <a href="#paper">Pratinjau</a>
-      <button type="button" id="navAi">Asisten</button>
     </nav>
     <div class="toolbar">
       <button class="btn" id="btnTheme" type="button" aria-label="Ganti mode terang atau gelap"></button>
@@ -44,6 +44,15 @@
     <div>
       <h2>Desain CV</h2>
       <div class="designs" id="designList" role="radiogroup" aria-label="Pilih desain CV"></div>
+    </div>
+    <div>
+      <h2>Posisi kepala CV</h2>
+      <div class="seg" role="group" aria-label="Posisi nama dan kontak di CV">
+        <button type="button" id="alignLeft" aria-pressed="true">Kiri</button>
+        <button type="button" id="alignCenter" aria-pressed="false">Tengah</button>
+        <button type="button" id="alignRight" aria-pressed="false">Kanan</button>
+      </div>
+      <p class="hint" style="margin:6px 0 0">Hanya nama, jabatan, dan kontak yang pindah. Isi CV tetap rata kiri seperti contoh.</p>
     </div>
     <div class="control-row">
       <div>
@@ -90,6 +99,7 @@
           <button class="btn small" id="btnExport" type="button">Ekspor JSON</button>
           <button class="btn small" id="btnImport" type="button">Impor JSON</button>
           <input type="file" id="fileImport" accept="application/json,.json" class="sr-only" aria-label="Pilih file JSON untuk diimpor">
+          <button class="btn small" id="btnCopySummary" type="button">Salin ringkasan</button>
           <button class="btn small danger" id="btnReset" type="button">Kosongkan</button>
         </div>
         <p class="save-state" id="saveState" style="margin:6px 0 0">Data hanya ada di browser ini selama sesi berjalan.</p>
@@ -169,33 +179,11 @@
       </div>
     </div>
   </div>
-  <footer class="site-foot"><span>Created by Yssufszz</span></footer>
+  <footer class="site-foot"><span>Created by Yssufszz</span><span>Berkas. v2.0.0</span></footer>
 </div>
 
 <datalist id="locList"></datalist>
 
-      <div class="ai-fab-panel" id="aiPanel" hidden role="dialog" aria-label="Asisten CV">
-        <div class="panel-head"><h3 id="aiTitle">Asisten CV</h3><button type="button" class="icon-btn" id="aiClose" aria-label="Tutup Asisten CV">×</button></div>
-        <div class="panel-body">
-          <p class="hint" style="margin:0 0 10px">Rekomendasi disusun di browser dari data yang sudah kamu isi. Tanpa API key, tanpa kirim data ke server.</p>
-          <p class="hint" id="cohereState" style="margin:0 0 10px">Mode lokal aktif. Proxy Cohere belum diset.</p>
-          <div class="ai-log" id="aiLog" aria-live="polite"></div>
-          <div class="ai-chips" role="group" aria-label="Perintah cepat">
-            <button type="button" class="btn small" data-ai-chip="ringkasan">Buatkan ringkasan</button>
-            <button type="button" class="btn small" data-ai-chip="perbaiki">Perbaiki ringkasan</button>
-            <button type="button" class="btn small" data-ai-chip="kurang">Apa yang kurang?</button>
-            <button type="button" class="btn small" data-ai-chip="katakerja">Saran kata kerja</button>
-            <button type="button" class="btn small" data-ai-chip="ats">Cek ATS singkat</button>
-            <button type="button" class="btn small" id="btnCopySummary">Salin ringkasan</button>
-          </div>
-          <div class="ai-row">
-            <input type="text" id="aiInput" placeholder="Tanya atau perintahkan, mis. tambah keahlian Excel…" aria-label="Pesan untuk Asisten CV">
-            <button class="btn small primary" id="aiSend" type="button">Kirim</button>
-          </div>
-          <p class="hint" style="margin:8px 0 0">Bisa juga mengeksekusi: “tambah keahlian …”, “tambah bahasa …”, “matikan foto”, “pakai desain Klasik ATS”, “font 10pt”.</p>
-        </div>
-      </div>
-<button class="ai-fab" id="aiFab" type="button" aria-expanded="false" aria-controls="aiPanel">Asisten</button>
 <div class="modal-back" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
   <div class="modal">
     <h3 id="resetTitle">Kosongkan semua data?</h3>

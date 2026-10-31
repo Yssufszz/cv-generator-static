@@ -1,4 +1,4 @@
-# Berkas.
+# Berkas. v2.0.0
 
 Alat CV statis yang ramah ATS: isi data sendiri dari kosong, atur bagian, pilih desain formal, dan unduh PDF gratis.
 
@@ -7,28 +7,24 @@ Nama situsnya Berkas. — "CV yang dibaca mesin, ditulis manusia."
 ## Struktur file
 - `index.html` — struktur halaman
 - `styles.css` — gaya tampilan aplikasi (kertas CV sengaja tetap polos dan ramah ATS)
-- `app.js` — logika aplikasi: draf, pratinjau, cek ATS, cek kata kunci, Asisten CV, ekspor PDF/DOCX/JSON
-- `proxy/worker.js` — kode Cloudflare Worker untuk Cohere (opsional, tanpa API key di dalamnya)
+- `app.js` — logika aplikasi: draf, pratinjau, cek ATS, cek kata kunci, ekspor PDF/DOCX/JSON
 
 ## Fitur
 - Mode Terang dan Gelap, pratinjau tetap kertas putih A4
 - 16 template formal satu kolom, ramah ATS
+- Posisi kepala CV bisa Kiri, Tengah, atau Kanan — nama, jabatan, dan kontak yang pindah, isi CV tetap rata kiri (juga berlaku di PDF)
 - Lokasi dari daftar kota/kabupaten Indonesia yang bisa dicari, plus Remote dan Luar Negeri
 - Tanggal dengan pemilih bulan-tahun dan opsi Masih berjalan
 - Cek ATS dan Cek Kata Kunci Lowongan, termasuk tombol tambah kata kunci yang kurang sebagai keahlian
-- Asisten CV melayang (tombol kanan bawah): rekomendasi ringkasan, saran poin pengalaman, dan chat yang bisa mengeksekusi perintah
+- Saran poin awal untuk tiap pengalaman kerja (template lokal, bisa diedit)
 - Mode Fokus, salin ringkasan, dan peringatan sebelum tab ditutup kalau ada perubahan yang belum diekspor
 - Ekspor PDF, DOCX, teks polos, dan JSON
 
 ## Catatan privasi
-Versi statis ini tidak menyimpan data di server. Data yang diisi hanya ada di browser pengunjung selama sesi berjalan. Gunakan Ekspor JSON sebagai cadangan.
+Versi statis ini tidak menyimpan data di server dan tidak memakai AI eksternal. Data yang diisi hanya ada di browser pengunjung selama sesi berjalan. Gunakan Ekspor JSON sebagai cadangan.
 
-## Cohere (opsional)
-Asisten CV bawaan berjalan lokal di browser dan tidak mengirim data ke mana-mana. Kalau mau memakai model Cohere:
-1. Deploy `proxy/worker.js` sebagai Cloudflare Worker.
-2. Set secret `CO_API_KEY` di dashboard Worker (bukan di repo, bukan di Drive, bukan di chat).
-3. Beri URL Worker itu ke pengelola situs untuk dipasang sebagai `COHERE_PROXY_URL` di `app.js`.
-Sampai URL itu dipasang, situs tetap memakai mode lokal, dan mode lokal tetap jadi fallback kalau Cohere error atau kuotanya habis.
+## Versi
+Versi situs tampil di footer. Setiap update menaikkan nomor versi di footer, di README ini, dan di komentar atas `index.html`.
 
 ## Jalankan
 Buka `index.html` di browser, atau aktifkan GitHub Pages dengan sumber branch `main` dan folder root.
