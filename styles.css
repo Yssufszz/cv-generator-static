@@ -298,6 +298,20 @@ body.focus-on .layout{grid-template-columns:1fr}
 .paper.design-klasikmono h4.cv-sec{font-family:"Courier New",monospace;letter-spacing:.08em}
 .paper.design-elegantipis{font-family:Georgia,"Times New Roman",serif}
 .paper.design-elegantipis h4.cv-sec{font-family:Georgia,"Times New Roman",serif;border-bottom:1px solid #999}
+/* ---------- Formal Dokumen: mirip contoh dokumen Google Docs ---------- */
+.paper.design-dokumen{font-family:"Times New Roman",Times,Georgia,serif;color:#000}
+.paper.design-dokumen .cv-head-text{text-align:left}
+.paper.design-dokumen .cv-name{font-size:24px}
+.paper.design-dokumen .cv-contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 28px;margin-top:8px;font-size:.96em;line-height:1.5}
+.paper.design-dokumen .cv-contact-grid a{color:#0563c1;text-decoration:underline}
+.paper.design-dokumen .cv-contact-line{margin-bottom:1px}
+.paper.design-dokumen h4.cv-sec{text-align:center;border-bottom:none;border-top:1px solid #000;padding-top:7px;margin:24px 0 10px;letter-spacing:.02em;font-size:1.06em}
+.paper.design-dokumen h4.cv-sec + p{text-align:justify}
+.paper.design-dokumen .cv-exp{display:flex;flex-direction:column}
+.paper.design-dokumen .cv-exp .cv-sub{order:-1;font-weight:700;text-transform:uppercase;margin-bottom:1px}
+.paper.design-dokumen .cv-exp .cv-line1{order:0}
+.paper.design-dokumen .cv-exp ul{order:1}
+.paper.design-dokumen .cv-dates{font-weight:700}
 
 /* ---------- Posisi kepala CV (pratinjau) ---------- */
 .paper.head-center .cv-head-text{text-align:center}

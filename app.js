@@ -30,7 +30,8 @@ var DESIGNS = [
   { id:"marginlebar", name:"Formal Margin Lebar", desc:"Ruang putih lebih lega di kiri-kanan kertas." },
   { id:"surat", name:"Formal Surat", desc:"Nuansa surat resmi: nama di tengah, garis tipis." },
   { id:"klasikmono", name:"Klasik Mono", desc:"Judul bagian monospace, isi tetap mudah dibaca mesin." },
-  { id:"elegantipis", name:"Elegan Garis Tipis", desc:"Serif dengan garis judul bagian sangat tipis." }
+  { id:"elegantipis", name:"Elegan Garis Tipis", desc:"Serif dengan garis judul bagian sangat tipis." },
+  { id:"dokumen", name:"Formal Dokumen", desc:"Mirip dokumen Google Docs: serif Times, judul bagian rata tengah dengan garis di atas, perusahaan di atas jabatan, kontak dua kolom." }
 ];
 
 var LOCATIONS = ["Remote","Luar Negeri",
@@ -332,6 +333,25 @@ function contactLine(){
   var p = state.personal;
   return [p.email,p.phone,p.location,p.linkedin,p.website].map(function(v){return String(v||"").trim();}).filter(Boolean).join("  •  ");
 }
+function contactDokumenHTML(){
+  // Kontak dua kolom ala contoh dokumen: kiri LinkedIn + domisili, kanan Email + Mobile.
+  // Hanya pakai field yang sudah ada di Berkas (linkedin, location, email, phone, website);
+  // kalau field kosong, barisnya dihilangkan, bukan diisi data contoh.
+  var p = state.personal;
+  var li = String(p.linkedin || "").trim(), loc = String(p.location || "").trim();
+  var em = String(p.email || "").trim(), ph = String(p.phone || "").trim(), ws = String(p.website || "").trim();
+  if(!li && !loc && !em && !ph && !ws) return "";
+  function linkHref(v){ return /^https?:\/\//i.test(v) ? v : "https://" + v; }
+  var left = "";
+  if(li) left += '<div class="cv-contact-line"><a href="' + esc(linkHref(li)) + '" target="_blank" rel="noopener">' + esc(li) + '</a></div>';
+  if(loc) left += '<div class="cv-contact-line">Domicile : ' + esc(loc) + '</div>';
+  if(ws) left += '<div class="cv-contact-line">' + esc(ws) + '</div>';
+  var right = "";
+  if(em) right += '<div class="cv-contact-line">Email&nbsp;&nbsp;&nbsp;: <a href="mailto:' + esc(em) + '">' + esc(em) + '</a></div>';
+  if(ph) right += '<div class="cv-contact-line">Mobile&nbsp;: ' + esc(ph) + '</div>';
+  if(!left && !right) return "";
+  return '<div class="cv-contact-grid"><div>' + left + '</div><div>' + right + '</div></div>';
+}
 function sectionContentHTML(key){
   var H = headingFor(key);
   if(key==="summary"){
@@ -354,7 +374,7 @@ function sectionContentHTML(key){
   items.forEach(function(it){
     if(key==="experience" || key==="related"){
       var bl = lines(it.bullets);
-      out += '<div class="cv-item"><div class="cv-line1"><span class="cv-strong">'+esc(it.role.trim())+'</span>'+
+      out += '<div class="cv-item cv-exp"><div class="cv-line1"><span class="cv-strong">'+esc(it.role.trim())+'</span>'+
         '<span class="cv-dates">'+esc(dateRange(it))+'</span></div>'+
         '<div class="cv-sub">'+esc([it.company.trim(),it.location.trim()].filter(Boolean).join(", "))+'</div>'+
         (bl.length ? '<ul>'+bl.map(function(b){ return '<li>'+esc(b)+'</li>'; }).join("")+'</ul>' : '')+'</div>';
@@ -388,7 +408,8 @@ function renderPreview(){
   var head = '<div class="cv-head"><div class="cv-head-text">'+
     (p.name.trim() ? '<p class="cv-name">'+esc(p.name.trim())+'</p>' : '<p class="cv-name cv-empty">Nama Lengkap</p>')+
     (p.role.trim() ? '<p class="cv-role">'+esc(p.role.trim())+'</p>' : '')+
-    (contactLine() ? '<p class="cv-contact">'+esc(contactLine())+'</p>' : '<p class="cv-contact cv-empty">email • nomor HP • kota domisili</p>')+
+    (state.design==="dokumen" ? (contactDokumenHTML() || '<p class="cv-contact cv-empty">email • nomor HP • kota domisili</p>')
+      : (contactLine() ? '<p class="cv-contact">'+esc(contactLine())+'</p>' : '<p class="cv-contact cv-empty">email • nomor HP • kota domisili</p>'))+
     '</div>'+photoHTML+'</div>';
   var body = "";
   state.order.forEach(function(k){
@@ -947,7 +968,8 @@ function buildPDF(){
   var compact = state.design==="ringkas";
   var navy = state.design==="navy";
   var serif = state.design==="serif";
-  var baseFont = serif ? "times" : "helvetica";
+  var dokumen = state.design==="dokumen";
+  var baseFont = (serif || dokumen) ? "times" : "helvetica";
   var pageW = 210, margin = compact ? 15 : 18, maxW = pageW - margin*2;
   var bodySize = state.fontPt - (compact ? 0.5 : 0);
   var lineH = bodySize * 0.5;
@@ -968,6 +990,17 @@ function buildPDF(){
   }
   function heading(text){
     ensure(lineH*2.4);
+    if(dokumen){
+      // Ala contoh dokumen: garis di ATAS judul, judul rata tengah, tanpa garis bawah.
+      y += 3.2;
+      doc.setDrawColor(0,0,0); doc.setLineWidth(0.4);
+      doc.line(margin, y, pageW-margin, y);
+      y += lineH*0.95;
+      doc.setFont(baseFont,"bold"); doc.setFontSize(bodySize+1); doc.setTextColor(0,0,0);
+      doc.text(String(text).toUpperCase(), pageW/2, y, { align:"center" });
+      y += lineH*0.95;
+      return;
+    }
     y += compact ? 3.2 : 4.2;
     doc.setFont(baseFont,"bold"); doc.setFontSize(bodySize+1);
     var c = navy ? navyRGB : black; doc.setTextColor(c[0],c[1],c[2]);
@@ -984,7 +1017,7 @@ function buildPDF(){
   var headTextW = hasPhoto ? maxW - photoW - 6 : maxW;
   doc.setFont(baseFont,"bold"); doc.setFontSize(compact?19:22);
   var nc = navy ? navyRGB : black; doc.setTextColor(nc[0],nc[1],nc[2]);
-  var headAlign = state.headAlign || "left";
+  var headAlign = dokumen ? "left" : (state.headAlign || "left");
   var headX = headAlign==="center" ? pageW/2 : (headAlign==="right" ? pageW-margin : margin);
   var headOpt = headAlign==="left" ? {} : { align: headAlign };
   var nameLines = doc.splitTextToSize((p.name.trim() || "Nama Lengkap").toUpperCase(), headTextW);
@@ -993,7 +1026,30 @@ function buildPDF(){
     doc.setFont(baseFont,"normal"); doc.setFontSize(bodySize+0.5); doc.setTextColor(nc[0],nc[1],nc[2]);
     doc.text(p.role.trim(), headX, y, headOpt); y += lineH;
   }
-  if(contactLine()){
+  if(dokumen && (p.linkedin.trim() || p.location.trim() || p.email.trim() || p.phone.trim())){
+    // Kontak dua kolom ala contoh: kiri LinkedIn + domisili, kanan Email + Mobile.
+    var midX = margin + maxW/2;
+    var leftLines = [], rightLines = [];
+    if(p.linkedin.trim()) leftLines.push({ text: p.linkedin.trim(), link: true });
+    if(p.location.trim()) leftLines.push({ text: "Domicile : " + p.location.trim(), link: false });
+    if(p.email.trim()) rightLines.push({ text: "Email : " + p.email.trim(), link: true });
+    if(p.phone.trim()) rightLines.push({ text: "Mobile : " + p.phone.trim(), link: false });
+    var rows = Math.max(leftLines.length, rightLines.length);
+    doc.setFont(baseFont,"normal"); doc.setFontSize(bodySize-0.5);
+    for(var ci = 0; ci < rows; ci++){
+      ensure(lineH);
+      if(leftLines[ci]){
+        doc.setTextColor(leftLines[ci].link ? 5 : 0, leftLines[ci].link ? 99 : 0, leftLines[ci].link ? 193 : 0);
+        doc.text(leftLines[ci].text, margin, y);
+      }
+      if(rightLines[ci]){
+        doc.setTextColor(rightLines[ci].link ? 5 : 0, rightLines[ci].link ? 99 : 0, rightLines[ci].link ? 193 : 0);
+        doc.text(rightLines[ci].text, midX, y);
+      }
+      y += lineH;
+    }
+    doc.setTextColor(0,0,0);
+  } else if(contactLine()){
     doc.setFont(baseFont,"normal"); doc.setFontSize(bodySize-0.5); doc.setTextColor(gray[0],gray[1],gray[2]);
     var cl = doc.splitTextToSize(contactLine(), headTextW);
     cl.forEach(function(ln){ doc.text(ln, headX, y, headOpt); y += lineH; });
@@ -1032,15 +1088,26 @@ function buildPDF(){
                                     : [it.company.trim(),it.location.trim()].filter(Boolean).join(", ");
         var dates = dateRange(it);
         ensure(lineH*2);
+        if(dokumen && (key==="experience" || key==="related") && it.company.trim()){
+          // Ala contoh: perusahaan (kapital, tebal) di baris sendiri di atas jabatan.
+          doc.setFont(baseFont,"bold"); doc.setFontSize(bodySize); doc.setTextColor(0,0,0);
+          var compLines = doc.splitTextToSize(it.company.trim().toUpperCase(), maxW);
+          compLines.forEach(function(ln){ ensure(lineH); doc.text(ln, margin, y); y += lineH; });
+        }
         doc.setFont(baseFont,"bold"); doc.setFontSize(bodySize); doc.setTextColor(0,0,0);
         var tw = doc.splitTextToSize(title, dates ? maxW-46 : maxW);
         var startY = y;
         tw.forEach(function(ln){ doc.text(ln, margin, y); y += lineH; });
         if(dates){
-          doc.setFont(baseFont,"normal"); doc.setFontSize(bodySize-0.5);
+          doc.setFont(baseFont, dokumen ? "bold" : "normal"); doc.setFontSize(bodySize-0.5);
           doc.text(dates, pageW-margin, startY, { align:"right" });
         }
-        if(sub){ write(sub, bodySize, "normal", black, 0.4); }
+        if(sub && !(dokumen && (key==="experience" || key==="related") && it.company.trim())){
+          write(sub, bodySize, "normal", black, 0.4);
+        } else if(sub && dokumen && (key==="experience" || key==="related") && it.location.trim()){
+          // Lokasi tetap tersimpan: tampil sebagai baris kecil di bawah jabatan.
+          write(it.location.trim(), bodySize, "normal", black, 0.4);
+        }
         lines(it.bullets).forEach(function(b){
           doc.setFont(baseFont,"normal"); doc.setFontSize(bodySize); doc.setTextColor(0,0,0);
           var wrapped = doc.splitTextToSize(b, maxW-6);
