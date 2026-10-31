@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Berkas. v2.0.0 -->
+<!-- Berkas. v2.1.0 -->
 <html lang="id" data-theme="light">
 <head>
 <meta charset="utf-8" />
@@ -14,7 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=v2.1.0">
 </head>
 <body data-tab="form">
 <div class="wrap">
@@ -28,6 +28,7 @@
       <a href="#formCol">Isi Data</a>
       <a href="#designList">Desain</a>
       <a href="#paper">Pratinjau</a>
+      <button type="button" id="navAi">Asisten</button>
     </nav>
     <div class="toolbar">
       <button class="btn" id="btnTheme" type="button" aria-label="Ganti mode terang atau gelap"></button>
@@ -179,11 +180,31 @@
       </div>
     </div>
   </div>
-  <footer class="site-foot"><span>Created by Yssufszz</span><span>Berkas. v2.0.0</span></footer>
+  <footer class="site-foot"><span>Created by Yssufszz</span><span>Berkas. v2.1.0</span></footer>
 </div>
 
 <datalist id="locList"></datalist>
 
+      <div class="ai-fab-panel" id="aiPanel" hidden role="dialog" aria-label="Asisten CV">
+        <div class="panel-head"><h3 id="aiTitle">Asisten CV</h3><button type="button" class="icon-btn" id="aiClose" aria-label="Tutup Asisten CV">×</button></div>
+        <div class="panel-body">
+          <p class="hint" style="margin:0 0 10px">Sepenuhnya lokal: rekomendasi disusun di browser dari data yang sudah kamu isi, tanpa AI eksternal dan tanpa kirim data ke server.</p>
+          <div class="ai-log" id="aiLog" aria-live="polite"></div>
+          <div class="ai-chips" role="group" aria-label="Perintah cepat">
+            <button type="button" class="btn small" data-ai-chip="ringkasan">Buatkan ringkasan</button>
+            <button type="button" class="btn small" data-ai-chip="perbaiki">Perbaiki ringkasan</button>
+            <button type="button" class="btn small" data-ai-chip="kurang">Apa yang kurang?</button>
+            <button type="button" class="btn small" data-ai-chip="katakerja">Saran kata kerja</button>
+            <button type="button" class="btn small" data-ai-chip="ats">Cek ATS singkat</button>
+          </div>
+          <div class="ai-row">
+            <input type="text" id="aiInput" placeholder="Tanya atau perintahkan, mis. tambah keahlian Excel…" aria-label="Pesan untuk Asisten CV">
+            <button class="btn small primary" id="aiSend" type="button">Kirim</button>
+          </div>
+          <p class="hint" style="margin:8px 0 0">Bisa juga mengeksekusi: “tambah keahlian …”, “tambah bahasa …”, “matikan foto”, “pakai desain Klasik ATS”, “font 10pt”.</p>
+        </div>
+      </div>
+<button class="ai-fab" id="aiFab" type="button" aria-expanded="false" aria-controls="aiPanel">Asisten</button>
 <div class="modal-back" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
   <div class="modal">
     <h3 id="resetTitle">Kosongkan semua data?</h3>
@@ -197,6 +218,6 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="app.js"></script>
+<script src="app.js?v=v2.1.0"></script>
 </body>
 </html>

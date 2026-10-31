@@ -1,4 +1,4 @@
-# Berkas. v2.0.0
+# Berkas. v2.1.0
 
 Alat CV statis yang ramah ATS: isi data sendiri dari kosong, atur bagian, pilih desain formal, dan unduh PDF gratis.
 
@@ -17,11 +17,12 @@ Nama situsnya Berkas. — "CV yang dibaca mesin, ditulis manusia."
 - Tanggal dengan pemilih bulan-tahun dan opsi Masih berjalan
 - Cek ATS dan Cek Kata Kunci Lowongan, termasuk tombol tambah kata kunci yang kurang sebagai keahlian
 - Saran poin awal untuk tiap pengalaman kerja (template lokal, bisa diedit)
+- Asisten CV lokal melayang (tombol kanan bawah): rekomendasi ringkasan dari data yang diisi, cek yang kurang, cek ATS singkat, dan chat yang bisa mengeksekusi perintah berbasis data — tanpa AI eksternal dan tanpa kirim data ke server
 - Mode Fokus, salin ringkasan, dan peringatan sebelum tab ditutup kalau ada perubahan yang belum diekspor
 - Ekspor PDF, DOCX, teks polos, dan JSON
 
 ## Catatan privasi
-Versi statis ini tidak menyimpan data di server dan tidak memakai AI eksternal. Data yang diisi hanya ada di browser pengunjung selama sesi berjalan. Gunakan Ekspor JSON sebagai cadangan.
+Versi statis ini tidak menyimpan data di server dan tidak memakai AI eksternal (Asisten CV sepenuhnya lokal). Data yang diisi hanya ada di browser pengunjung selama sesi berjalan. Gunakan Ekspor JSON sebagai cadangan.
 
 ## Versi
 Versi situs tampil di footer. Setiap update menaikkan nomor versi di footer, di README ini, dan di komentar atas `index.html`.

@@ -306,3 +306,24 @@ body.focus-on .layout{grid-template-columns:1fr}
 /* ---------- Polish kertas ala contoh: nama kapital, judul tegas ---------- */
 .paper .cv-name{text-transform:uppercase;letter-spacing:.01em}
 .paper h4.cv-sec{letter-spacing:.08em}
+
+/* ---------- Asisten CV lokal (melayang) ---------- */
+.ai-fab{position:fixed;right:20px;bottom:20px;z-index:40;background:var(--ink);color:var(--bg);border:1px solid var(--ink);border-radius:999px;padding:13px 20px;font-weight:700;font-size:14.5px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.ai-fab:hover{transform:translateY(-1px)}
+.ai-fab-panel{position:fixed;right:20px;bottom:82px;z-index:40;width:min(400px,calc(100vw - 32px));max-height:72vh;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 16px 40px rgba(0,0,0,.28);overflow:hidden}
+.ai-fab-panel[hidden]{display:none}
+.ai-fab-panel .panel-head{justify-content:space-between}
+.ai-fab-panel .panel-body{overflow:auto}
+.ai-log{border:1px solid var(--line);border-radius:6px;background:var(--surface-2);padding:12px 14px;min-height:110px;max-height:320px;overflow:auto;margin-bottom:10px;font-size:14px}
+.ai-msg{margin-bottom:10px;line-height:1.5}
+.ai-msg:last-child{margin-bottom:0}
+.ai-msg .who{font-weight:700;font-size:12.5px;color:var(--muted);display:block;margin-bottom:2px}
+.ai-msg.user .who{color:var(--navy)}
+.ai-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.ai-row{display:flex;gap:8px}
+.ai-row input[type="text"]{flex:1;min-width:0;border:1px solid var(--line);border-radius:6px;padding:9px 10px;background:var(--surface);font-size:14px}
+.ai-row input[type="text"]:focus{outline:2px solid var(--navy);outline-offset:0;border-color:var(--navy)}
+@media (max-width:640px){
+  .ai-fab{right:14px;bottom:14px}
+  .ai-fab-panel{right:14px;left:14px;bottom:72px;width:auto;max-height:76vh}
+}
