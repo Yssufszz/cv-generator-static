@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="light dark" />
-<meta name="description" content="CV Generator statis yang ramah ATS: isi data sendiri, atur bagian, dan unduh PDF gratis." />
+<meta name="description" content="Berkas. — alat CV statis yang ramah ATS: isi data sendiri, atur bagian, dan unduh PDF gratis." />
 <link rel="icon" href="data:," />
-<title>CV Generator — ATS Friendly</title>
+<title>Berkas. — CV yang dibaca mesin, ditulis manusia.</title>
 <script>try{document.documentElement.dataset.theme=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,18 +18,28 @@
 <body data-tab="form">
 <div class="wrap">
 
-  <div class="masthead">
-    <div><p class="masthead-eyebrow">Dokumen &middot; ATS Friendly &middot; Tanpa Akun</p><h1>CV Generator</h1><p class="masthead-sub">Tulis, atur, unduh. Datamu tidak dikirim ke server.</p></div>
+  <header class="site-header">
+    <div class="brand">
+      <p class="brand-mark">Berkas.</p>
+      <p class="brand-sub">CV &middot; ATS Friendly</p>
+    </div>
+    <nav class="header-nav" aria-label="Jalan pintas">
+      <a href="#formCol">Isi Data</a>
+      <a href="#designList">Desain</a>
+      <a href="#paper">Pratinjau</a>
+      <button type="button" id="navAi">Asisten</button>
+    </nav>
     <div class="toolbar">
       <button class="btn" id="btnTheme" type="button" aria-label="Ganti mode terang atau gelap"></button>
+      <button class="btn" id="btnFocus" type="button" aria-pressed="false">Mode Fokus</button>
       <button class="btn" id="btnWizard" type="button" aria-pressed="false">Mode Wizard</button>
       <button class="btn primary" id="btnPdf" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
         Unduh PDF
       </button>
     </div>
-  </div>
-
+  </header>
+  <p class="tagline">CV yang dibaca mesin, ditulis manusia.</p>
   <div class="controls">
     <div>
       <h2>Desain CV</h2>
@@ -141,25 +151,6 @@
           <div id="kwResult" aria-live="polite"></div>
         </div>
       </section>
-      <section class="panel wizard-hide" aria-labelledby="aiTitle">
-        <div class="panel-head"><h3 id="aiTitle">Asisten CV</h3></div>
-        <div class="panel-body">
-          <p class="hint" style="margin:0 0 10px">Rekomendasi disusun di browser dari data yang sudah kamu isi. Tanpa API key, tanpa kirim data ke server.</p>
-          <div class="ai-log" id="aiLog" aria-live="polite"></div>
-          <div class="ai-chips" role="group" aria-label="Perintah cepat">
-            <button type="button" class="btn small" data-ai-chip="ringkasan">Buatkan ringkasan</button>
-            <button type="button" class="btn small" data-ai-chip="perbaiki">Perbaiki ringkasan</button>
-            <button type="button" class="btn small" data-ai-chip="kurang">Apa yang kurang?</button>
-            <button type="button" class="btn small" data-ai-chip="katakerja">Saran kata kerja</button>
-            <button type="button" class="btn small" data-ai-chip="ats">Cek ATS singkat</button>
-          </div>
-          <div class="ai-row">
-            <input type="text" id="aiInput" placeholder="Tanya atau perintahkan, mis. tambah keahlian Excel…" aria-label="Pesan untuk Asisten CV">
-            <button class="btn small primary" id="aiSend" type="button">Kirim</button>
-          </div>
-          <p class="hint" style="margin:8px 0 0">Bisa juga mengeksekusi: “tambah keahlian …”, “tambah bahasa …”, “matikan foto”, “pakai desain Klasik ATS”, “font 10pt”.</p>
-        </div>
-      </section>
     </div>
 
     <div class="preview-col">
@@ -183,6 +174,28 @@
 
 <datalist id="locList"></datalist>
 
+      <div class="ai-fab-panel" id="aiPanel" hidden role="dialog" aria-label="Asisten CV">
+        <div class="panel-head"><h3 id="aiTitle">Asisten CV</h3><button type="button" class="icon-btn" id="aiClose" aria-label="Tutup Asisten CV">×</button></div>
+        <div class="panel-body">
+          <p class="hint" style="margin:0 0 10px">Rekomendasi disusun di browser dari data yang sudah kamu isi. Tanpa API key, tanpa kirim data ke server.</p>
+          <p class="hint" id="cohereState" style="margin:0 0 10px">Mode lokal aktif. Proxy Cohere belum diset.</p>
+          <div class="ai-log" id="aiLog" aria-live="polite"></div>
+          <div class="ai-chips" role="group" aria-label="Perintah cepat">
+            <button type="button" class="btn small" data-ai-chip="ringkasan">Buatkan ringkasan</button>
+            <button type="button" class="btn small" data-ai-chip="perbaiki">Perbaiki ringkasan</button>
+            <button type="button" class="btn small" data-ai-chip="kurang">Apa yang kurang?</button>
+            <button type="button" class="btn small" data-ai-chip="katakerja">Saran kata kerja</button>
+            <button type="button" class="btn small" data-ai-chip="ats">Cek ATS singkat</button>
+            <button type="button" class="btn small" id="btnCopySummary">Salin ringkasan</button>
+          </div>
+          <div class="ai-row">
+            <input type="text" id="aiInput" placeholder="Tanya atau perintahkan, mis. tambah keahlian Excel…" aria-label="Pesan untuk Asisten CV">
+            <button class="btn small primary" id="aiSend" type="button">Kirim</button>
+          </div>
+          <p class="hint" style="margin:8px 0 0">Bisa juga mengeksekusi: “tambah keahlian …”, “tambah bahasa …”, “matikan foto”, “pakai desain Klasik ATS”, “font 10pt”.</p>
+        </div>
+      </div>
+<button class="ai-fab" id="aiFab" type="button" aria-expanded="false" aria-controls="aiPanel">Asisten</button>
 <div class="modal-back" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
   <div class="modal">
     <h3 id="resetTitle">Kosongkan semua data?</h3>

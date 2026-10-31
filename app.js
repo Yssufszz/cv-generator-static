@@ -1,5 +1,8 @@
 (function(){
 "use strict";
+/* COHERE_PROXY_URL: isi URL Worker Cohere setelah deploy (lihat proxy/worker.js).
+   Biarkan kosong = mode lokal. JANGAN pernah isi API key di file ini. */
+var COHERE_PROXY_URL = "";
 /* ============================== Data model ============================== */
 var uid = 0;
 function nextId(){ return ++uid; }
@@ -25,7 +28,12 @@ var DESIGNS = [
   { id:"hijau",  name:"Formal Hijau Tua", desc:"Aksen hijau tua seperti Formal Navy, tetap formal." },
   { id:"abu",    name:"Formal Abu", desc:"Aksen abu-abu netral, tanpa warna mencolok." },
   { id:"serifpenuh", name:"Serif Penuh", desc:"Seluruh CV serif Georgia, klasik dan rapi." },
-  { id:"garistebal", name:"Formal Garis Tebal", desc:"Nama lebih besar, garis judul bagian tebal." }
+  { id:"garistebal", name:"Formal Garis Tebal", desc:"Nama lebih besar, garis judul bagian tebal." },
+  { id:"klasiktebal", name:"Klasik Tebal", desc:"Nama dan judul bagian lebih tebal, isi tetap Arial." },
+  { id:"marginlebar", name:"Formal Margin Lebar", desc:"Ruang putih lebih lega di kiri-kanan kertas." },
+  { id:"surat", name:"Formal Surat", desc:"Nuansa surat resmi: nama di tengah, garis tipis." },
+  { id:"klasikmono", name:"Klasik Mono", desc:"Judul bagian monospace, isi tetap mudah dibaca mesin." },
+  { id:"elegantipis", name:"Elegan Garis Tipis", desc:"Serif dengan garis judul bagian sangat tipis." }
 ];
 
 var LOCATIONS = ["Remote","Luar Negeri",
@@ -257,7 +265,8 @@ function itemHTML(key, it, idx, total){
     '<button type="button" class="icon-btn" data-item-down="1" aria-label="Geser item ke bawah" '+(idx===total-1?'disabled':'')+'>'+ICO_DOWN+'</button>'+
     '<button type="button" class="icon-btn" data-item-dup="1" aria-label="Duplikat item">'+ICO_COPY+'</button>'+
     '<button type="button" class="icon-btn" data-item-del="1" aria-label="Hapus item">'+ICO_TRASH+'</button></div>'+
-    '<div class="grid2">'+fields+'</div></div>';
+    '<div class="grid2">'+fields+'</div>'+
+    ((key==="experience" || key==="related") ? '<button type="button" class="suggest-btn" data-suggest-bullets="1">Saran poin awal</button>' : '')+'</div>';
 }
 function listPanel(key){
   var en = state.sectionEnabled[key];
@@ -509,6 +518,7 @@ function renderDesigns(){
   var el = document.getElementById("designList");
   el.innerHTML = DESIGNS.map(function(d){
     return '<button type="button" class="design-card" role="radio" data-design="'+d.id+'" aria-checked="'+(state.design===d.id)+'">'+
+      '<span class="dmini"><i class="dmini-name"></i><i></i><i></i><i class="short"></i></span>'+
       '<span class="dname">'+esc(d.name)+'</span><span class="ddesc">'+esc(d.desc)+'</span></button>';
   }).join("");
 }
@@ -701,6 +711,27 @@ formRoot.addEventListener("change", function(e){
 formRoot.addEventListener("click", function(e){
   var add = e.target.closest("[data-add]");
   if(add){ state.items[add.getAttribute("data-add")].push(blankItem(add.getAttribute("data-add"))); renderForm(); markSaved(); return; }
+  var sug = e.target.closest("[data-suggest-bullets]");
+  if(sug){
+    var swrap = sug.closest("[data-item-id]"); var spanel = sug.closest("[data-panel]");
+    if(swrap && spanel){
+      var skey = spanel.getAttribute("data-panel"); var sid = Number(swrap.getAttribute("data-item-id"));
+      var sarr = state.items[skey]; var sidx = -1; sarr.forEach(function(x,i){ if(x.id===sid) sidx=i; });
+      if(sidx >= 0){
+        var sitem = sarr[sidx];
+        var org = (sitem.company || "").trim();
+        var starters = [
+          "Mengelola tugas harian" + (org ? " di " + org : "") + " sesuai target dan tenggat yang disepakati.",
+          "Memproses dan memeriksa data sebelum diserahkan agar akurat dan lengkap.",
+          "Berkolaborasi dengan tim untuk meningkatkan efisiensi proses kerja."
+        ];
+        sitem.bullets = (sitem.bullets || "").trim() ? sitem.bullets.trim() + "\n" + starters.join("\n") : starters.join("\n");
+        renderForm(); markSaved();
+        toast("3 poin awal ditambahkan — edit angka dan hasilnya agar spesifik.");
+      }
+    }
+    return;
+  }
   var del = e.target.closest("[data-item-del]");
   var dup = e.target.closest("[data-item-dup]");
   var up = e.target.closest("[data-item-up]");
@@ -774,7 +805,8 @@ document.getElementById("btnKw").addEventListener("click", function(){
     found.map(function(w){ return '<span class="chip found">✓ '+esc(w)+'</span>'; }).join("")+
     miss.map(function(w){ return '<span class="chip miss">'+esc(w)+'</span>'; }).join("")+
     '</div>'+
-    (miss.length ? '<p class="hint" style="margin-top:8px">Yang belum ada: pertimbangkan menambahkannya hanya jika memang sesuai pengalamanmu — jangan mengarang.</p>' : '');
+    (miss.length ? '<p class="hint" style="margin-top:8px">Yang belum ada: tambahkan hanya jika memang sesuai pengalamanmu — jangan mengarang.</p><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">' +
+    miss.slice(0, 8).map(function(w){ return '<button type="button" class="btn small" data-kw-add="'+esc(w)+'">+ '+esc(w)+'</button>'; }).join("") + '</div>' : '');
 });
 
 /* ============================== Berkas: JSON / teks / DOCX ============================== */
@@ -1215,6 +1247,52 @@ document.getElementById("aiLog").addEventListener("click", function(e){
   aiAddMsg("bot", "Ringkasan sudah dipakai dan muncul di pratinjau.");
 });
 aiAddMsg("bot", "Halo, aku Asisten CV. Coba tekan “Buatkan ringkasan” setelah kamu mengisi nama, jabatan, dan pengalaman — atau tanya apa yang kurang di CV-mu.");
+
+
+document.getElementById("kwResult").addEventListener("click", function(e){
+  var b = e.target.closest ? e.target.closest("[data-kw-add]") : null;
+  if(!b) return;
+  var w = b.getAttribute("data-kw-add");
+  var it = blankItem("tech"); it.value = w; state.items.tech.push(it);
+  syncAllUI(); markSaved();
+  toast("“" + w + "” ditambahkan ke Keahlian Teknis.");
+});
+
+
+/* ============================== FAB Asisten + Mode Fokus ============================== */
+var dirtySinceExport = false;
+var _origMarkSaved = markSaved;
+markSaved = function(){ dirtySinceExport = true; _origMarkSaved(); };
+function toggleAi(open){
+  var panel = document.getElementById("aiPanel");
+  var fab = document.getElementById("aiFab");
+  var show = (typeof open === "boolean") ? open : panel.hidden;
+  panel.hidden = !show;
+  fab.setAttribute("aria-expanded", show ? "true" : "false");
+  if(show){ var inp = document.getElementById("aiInput"); if(inp) inp.focus(); }
+}
+document.getElementById("aiFab").addEventListener("click", function(){ toggleAi(); });
+document.getElementById("aiClose").addEventListener("click", function(){ toggleAi(false); });
+document.getElementById("navAi").addEventListener("click", function(){ toggleAi(true); });
+document.addEventListener("keydown", function(e){ if(e.key === "Escape") toggleAi(false); });
+document.getElementById("btnFocus").addEventListener("click", function(){
+  var on = document.body.classList.toggle("focus-on");
+  this.setAttribute("aria-pressed", on ? "true" : "false");
+  this.textContent = on ? "Keluar Fokus" : "Mode Fokus";
+});
+document.getElementById("btnCopySummary").addEventListener("click", function(){
+  var t = state.summaryText.trim();
+  if(!t){ toast("Ringkasan masih kosong — buatkan dulu lewat Asisten CV."); return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(function(){ toast("Ringkasan tersalin."); }, function(){ toast("Gagal menyalin ringkasan."); });
+  } else { toast("Salin manual dari panel Ringkasan Profil."); }
+});
+window.addEventListener("beforeunload", function(e){
+  if(dirtySinceExport){
+    e.preventDefault();
+    e.returnValue = "";
+  }
+});
 
 /* ============================== Init ============================== */
 var locDl = document.getElementById("locList");

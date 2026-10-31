@@ -273,3 +273,49 @@ body{font-size:15px}
 .ai-row input[type="text"]{flex:1;min-width:0;border:1px solid var(--line);border-radius:6px;padding:9px 10px;background:var(--surface);font-size:14px}
 .ai-row input[type="text"]:focus{outline:2px solid var(--navy);outline-offset:0;border-color:var(--navy)}
 @media (max-width:560px){.designs{grid-template-columns:1fr 1fr}}
+
+/* ---------- Header Berkas. (workbench, sticky) ---------- */
+.site-header{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;background:var(--surface);border-bottom:2px solid var(--ink);padding:12px 4px 12px;margin:0 -4px 10px}
+.brand-mark{font-family:"IBM Plex Serif",Georgia,serif;font-size:30px;line-height:1;margin:0;font-weight:700;letter-spacing:-.02em}
+.brand-sub{margin:4px 0 0;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.header-nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.header-nav a,.header-nav button{border:0;background:transparent;color:var(--muted);font-weight:600;font-size:14px;padding:7px 10px;border-radius:6px;text-decoration:none}
+.header-nav a:hover,.header-nav button:hover{color:var(--ink);background:var(--surface-2)}
+.tagline{margin:0 0 16px;color:var(--muted);font-size:14.5px}
+/* ---------- Asisten melayang ---------- */
+.ai-fab{position:fixed;right:20px;bottom:20px;z-index:40;background:var(--ink);color:var(--bg);border:1px solid var(--ink);border-radius:999px;padding:13px 20px;font-weight:700;font-size:14.5px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.ai-fab:hover{transform:translateY(-1px)}
+.ai-fab-panel{position:fixed;right:20px;bottom:82px;z-index:40;width:min(400px,calc(100vw - 32px));max-height:72vh;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 16px 40px rgba(0,0,0,.28);overflow:hidden}
+.ai-fab-panel[hidden]{display:none}
+.ai-fab-panel .panel{border:0;border-radius:0;margin:0;box-shadow:none}
+.ai-fab-panel .ai-log{max-height:none;flex:1;overflow:auto}
+.ai-fab-panel .panel-head{justify-content:space-between}
+.ai-fab-panel .panel-body{overflow:auto}
+/* ---------- Mini pratinjau desain ---------- */
+.dmini{display:block;background:#fff;border:1px solid #ddd;border-radius:3px;padding:7px 8px;margin-bottom:8px}
+.dmini i{display:block;height:4px;background:#c9c9c9;margin:3px 0;border-radius:1px}
+.dmini i.dmini-name{height:7px;width:62%;background:#1c2f45;margin-bottom:5px}
+.dmini i.short{width:55%}
+/* ---------- Mode Fokus ---------- */
+body.focus-on .preview-col{display:none}
+body.focus-on .layout{grid-template-columns:1fr}
+body.focus-on .controls .complete-bar{margin-bottom:0}
+/* ---------- Tombol saran poin ---------- */
+.suggest-btn{border:1px dashed var(--line);background:transparent;color:var(--navy);border-radius:6px;padding:7px 10px;font-weight:600;font-size:13px;margin:2px 0 10px}
+.suggest-btn:hover{border-color:var(--navy)}
+@media (max-width:640px){
+  .site-header{position:static}
+  .ai-fab{right:14px;bottom:14px}
+  .ai-fab-panel{right:14px;left:14px;bottom:72px;width:auto;max-height:76vh}
+}
+
+.paper.design-klasiktebal .cv-name{font-size:28px}
+.paper.design-klasiktebal h4.cv-sec{border-bottom:2.5px solid #111}
+.paper.design-marginlebar{padding:56px 64px}
+.paper.design-surat .cv-head-text{text-align:center}
+.paper.design-surat .cv-name{text-align:center}
+.paper.design-surat .cv-role,.paper.design-surat .cv-contact{text-align:center}
+.paper.design-surat h4.cv-sec{text-align:center;border-bottom:1px solid #111}
+.paper.design-klasikmono h4.cv-sec{font-family:"Courier New",monospace;letter-spacing:.08em}
+.paper.design-elegantipis{font-family:Georgia,"Times New Roman",serif}
+.paper.design-elegantipis h4.cv-sec{font-family:Georgia,"Times New Roman",serif;border-bottom:1px solid #999}
