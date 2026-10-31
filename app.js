@@ -19,7 +19,13 @@ var DESIGNS = [
   { id:"foto",   name:"Formal + Foto", desc:"Klasik dengan ruang foto 3×4 di kanan atas." },
   { id:"navy",   name:"Formal Navy", desc:"Aksen biru navy pada nama dan judul bagian." },
   { id:"serif",  name:"Formal Serif", desc:"Nama dan judul bagian serif (Georgia), isi tetap Arial." },
-  { id:"ringkas",name:"Formal Ringkas", desc:"Jarak lebih rapat — muat lebih banyak di 1–2 halaman." }
+  { id:"ringkas",name:"Formal Ringkas", desc:"Jarak lebih rapat — muat lebih banyak di 1–2 halaman." },
+  { id:"elegan", name:"Formal Elegan", desc:"Serif penuh dengan garis ganda di judul bagian." },
+  { id:"modern", name:"Modern Minimal", desc:"Calibri, nama ringkas, garis tipis abu-abu." },
+  { id:"hijau",  name:"Formal Hijau Tua", desc:"Aksen hijau tua seperti Formal Navy, tetap formal." },
+  { id:"abu",    name:"Formal Abu", desc:"Aksen abu-abu netral, tanpa warna mencolok." },
+  { id:"serifpenuh", name:"Serif Penuh", desc:"Seluruh CV serif Georgia, klasik dan rapi." },
+  { id:"garistebal", name:"Formal Garis Tebal", desc:"Nama lebih besar, garis judul bagian tebal." }
 ];
 
 var LOCATIONS = ["Remote","Luar Negeri",
@@ -1031,6 +1037,184 @@ function buildPDF(){
   doc.save(fileBase() + "_CV.pdf");
   toast("PDF terunduh — teksnya bisa diseleksi & dibaca ATS.");
 }
+
+
+/* ============================== Asisten CV (lokal, tanpa API key) ============================== */
+var lastSummary = "";
+function aiListItems(key){
+  return state.items[key].filter(function(it){ return it.enabled && itemHasContent(key, it); });
+}
+function aiFirstNumberedBullet(){
+  var exps = aiListItems("experience").concat(aiListItems("related"));
+  for(var i=0;i<exps.length;i++){
+    var bl = lines(exps[i].bullets || "");
+    for(var j=0;j<bl.length;j++){ if(/\d/.test(bl[j])) return bl[j]; }
+  }
+  return "";
+}
+function buildSummary(){
+  var p = state.personal, en = state.lang === "en";
+  var exps = aiListItems("experience");
+  var techs = aiListItems("tech").map(function(it){ return it.value.trim(); }).filter(Boolean);
+  var edu = aiListItems("education")[0];
+  var parts = [];
+  if(en){
+    var open = "";
+    if(p.name.trim()) open += p.name.trim() + " is ";
+    open += p.role.trim() ? "a " + p.role.trim() : "a professional";
+    if(exps.length){
+      var e0 = exps[0];
+      open += " with experience at " + [e0.company.trim(), e0.role.trim()].filter(Boolean).join(" as ");
+    }
+    open += ".";
+    parts.push(open);
+    if(techs.length) parts.push("Key skills: " + techs.slice(0, 4).join(", ") + ".");
+    var num = aiFirstNumberedBullet();
+    if(num) parts.push("Measurable result: " + num.replace(/\.$/, "") + ".");
+    if(edu && edu.school.trim()) parts.push("Graduated from " + edu.school.trim() + (edu.degree.trim() ? " (" + edu.degree.trim() + ")" : "") + ".");
+  } else {
+    var openId = "";
+    if(p.name.trim()) openId += p.name.trim() + " adalah ";
+    openId += p.role.trim() ? p.role.trim() : "profesional";
+    if(exps.length){
+      var e1 = exps[0];
+      openId += " dengan pengalaman di " + [e1.company.trim(), e1.role.trim()].filter(Boolean).join(" sebagai ");
+    }
+    openId += ".";
+    parts.push(openId);
+    if(techs.length) parts.push("Keahlian utama: " + techs.slice(0, 4).join(", ") + ".");
+    var numId = aiFirstNumberedBullet();
+    if(numId) parts.push("Hasil terukur: " + numId.replace(/\.$/, "") + ".");
+    if(edu && edu.school.trim()) parts.push("Lulusan " + edu.school.trim() + (edu.degree.trim() ? " (" + edu.degree.trim() + ")" : "") + ".");
+  }
+  return parts.join(" ");
+}
+function improveSummary(){
+  var t = state.summaryText.trim();
+  if(!t) return buildSummary();
+  var s = t.replace(/Saya adalah (seorang )?/gi, "").replace(/saya sangat bersemangat/gi, "berpengalaman")
+    .replace(/orang yang pekerja keras/gi, "profesional yang berorientasi hasil")
+    .replace(/\s+/g, " ").trim();
+  if(s && s.charAt(0) === s.charAt(0).toLowerCase()) s = s.charAt(0).toUpperCase() + s.slice(1);
+  var sentences = s.split(/\.(\s+|$)/).filter(function(x){ return x && x.trim().length > 1 && x.trim() !== "."; });
+  var clean = [];
+  sentences.forEach(function(x){ var v = x.trim().replace(/\.$/, ""); if(v) clean.push(v); });
+  if(clean.length > 3) clean = clean.slice(0, 3);
+  return clean.join(". ") + (clean.length ? "." : "");
+}
+function aiAddMsg(who, html, applySummary){
+  var log = document.getElementById("aiLog");
+  if(!log) return;
+  var div = document.createElement("div");
+  div.className = "ai-msg " + who;
+  div.innerHTML = '<span class="who">' + (who === "user" ? "Kamu" : "Asisten") + '</span><span>' + html + '</span>' +
+    (applySummary ? '<div style="margin-top:8px"><button type="button" class="btn small primary" data-ai-apply="1">Pakai ringkasan ini</button></div>' : "");
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+function aiAnswer(raw){
+  var q = (raw || "").toLowerCase().trim();
+  if(!q) return;
+  aiAddMsg("user", esc(raw));
+  var m;
+  if((m = q.match(/tambah keahlian (.+)/))){
+    var v = m[1].replace(/[.\s]+$/, "").trim();
+    if(v){ var it = blankItem("tech"); it.value = v; state.items.tech.push(it); syncAllUI(); markSaved();
+      aiAddMsg("bot", "Sudah ditambahkan ke Keahlian Teknis: <b>" + esc(v) + "</b>. Cek di pratinjau dan panel keahlian."); return; }
+  }
+  if((m = q.match(/tambah (keahlian nonteknis|soft skill) (.+)/))){
+    var v2 = m[2].replace(/[.\s]+$/, "").trim();
+    if(v2){ var it2 = blankItem("soft"); it2.value = v2; state.items.soft.push(it2); syncAllUI(); markSaved();
+      aiAddMsg("bot", "Sudah ditambahkan ke Keahlian Nonteknis: <b>" + esc(v2) + "</b>."); return; }
+  }
+  if((m = q.match(/tambah bahasa (.+)/))){
+    var v3 = m[1].replace(/[.\s]+$/, "").trim();
+    if(v3){ var it3 = blankItem("languages"); it3.name = v3; state.items.languages.push(it3); syncAllUI(); markSaved();
+      aiAddMsg("bot", "Sudah ditambahkan ke Bahasa: <b>" + esc(v3) + "</b>. Lengkapi tingkatnya di panel Bahasa."); return; }
+  }
+  if(q.indexOf("matikan foto") >= 0 || q.indexOf("hapus foto") >= 0 || q.indexOf("tanpa foto") >= 0){
+    state.showPhoto = false; syncAllUI(); markSaved();
+    aiAddMsg("bot", "Foto sudah dimatikan. Ini pilihan paling aman untuk lamaran lewat sistem ATS."); return;
+  }
+  if((m = q.match(/pakai desain (.+)/))){
+    var want = m[1].trim();
+    var found = DESIGNS.filter(function(d){ return d.name.toLowerCase() === want || d.name.toLowerCase().indexOf(want) >= 0; })[0];
+    if(found){ state.design = found.id; syncAllUI(); markSaved();
+      aiAddMsg("bot", "Desain diubah ke <b>" + esc(found.name) + "</b>. Lihat pratinjau di kanan."); return; }
+  }
+  if((m = q.match(/font (10|11|12)\s?pt/))){
+    state.fontPt = Number(m[1]); syncAllUI(); markSaved();
+    aiAddMsg("bot", "Ukuran font isi CV diubah ke <b>" + m[1] + "pt</b>."); return;
+  }
+  if(q.indexOf("pakai ringkasan") >= 0 && lastSummary){
+    state.summaryText = lastSummary; syncAllUI(); markSaved();
+    aiAddMsg("bot", "Ringkasan sudah dipakai dan muncul di pratinjau."); return;
+  }
+  if(q.indexOf("ringkasan") >= 0 || q.indexOf("summary") >= 0){
+    var s = buildSummary();
+    if(!s){ aiAddMsg("bot", "Isi dulu nama, jabatan, atau satu pengalaman kerja, lalu minta lagi — ringkasannya akan disusun dari data itu."); return; }
+    lastSummary = s;
+    aiAddMsg("bot", "Ini draf ringkasan dari datamu:<br><br>" + esc(s) + "<br><br>Tekan tombol di bawah kalau mau langsung dipakai, atau edit dulu di panel Ringkasan Profil.", true); return;
+  }
+  if(q.indexOf("perbaiki") >= 0){
+    var imp = improveSummary();
+    if(!imp){ aiAddMsg("bot", "Belum ada ringkasan untuk diperbaiki. Coba perintah “Buatkan ringkasan” dulu."); return; }
+    lastSummary = imp;
+    aiAddMsg("bot", "Versi yang lebih ringkas dan langsung ke hasil:<br><br>" + esc(imp), true); return;
+  }
+  if(q.indexOf("kurang") >= 0 || q.indexOf("apa yang") >= 0 || q.indexOf("cek cv") >= 0){
+    var c = completeness();
+    aiAddMsg("bot", c.missing.length
+      ? "Yang masih kurang: <b>" + esc(c.missing.join(", ")) + "</b>. Kelengkapan sekarang " + c.pct + "%."
+      : "Semua bagian inti sudah terisi (" + c.pct + "%). Tinggal periksa pratinjau dan unduh."); return;
+  }
+  if(q.indexOf("kata kerja") >= 0 || q.indexOf("action verb") >= 0 || q.indexOf("pengalaman") >= 0){
+    aiAddMsg("bot", "Awali tiap poin pengalaman dengan kata kerja aksi dan angka hasil. Contoh: Mengelola, Memproses, Meningkatkan, Mengurangi, Menyusun, Melayani, Mengkoordinasikan. Lalu tambah hasil terukur, mis. “Memproses 30+ berkas per bulan, error turun 15%.”"); return;
+  }
+  if(q.indexOf("ats") >= 0){
+    var a = atsChecks();
+    aiAddMsg("bot", a.map(function(x){ return (x.ok ? "✓ " : "! ") + x.text; }).join("<br>")); return;
+  }
+  if(q.indexOf("foto") >= 0){
+    aiAddMsg("bot", "Untuk lamaran via ATS, lebih aman tanpa foto. Foto hanya cocok untuk CV yang dikirim langsung ke perekrut atau untuk portofolio."); return;
+  }
+  if(q.indexOf("halaman") >= 0 || q.indexOf("panjang") >= 0){
+    aiAddMsg("bot", "Perkiraan sekarang ±" + pageEst + " halaman. Idealnya 1–2 halaman. Kalau lebih, pakai desain Formal Ringkas atau font 10pt, dan pangkas poin yang paling tidak relevan."); return;
+  }
+  if(q.indexOf("desain") >= 0 || q.indexOf("template") >= 0){
+    aiAddMsg("bot", "Ada " + DESIGNS.length + " desain: " + DESIGNS.map(function(d){ return d.name; }).join(", ") + ". Untuk sistem ATS, paling aman Klasik ATS atau Formal Ringkas."); return;
+  }
+  if(q.indexOf("halo") >= 0 || q.indexOf("hai") >= 0 || q.indexOf("bisa apa") >= 0 || q.indexOf("help") >= 0){
+    aiAddMsg("bot", "Aku bisa buatkan ringkasan dari datamu, memperbaiki ringkasan, mengecek yang kurang dan cek ATS, memberi saran kata kerja, serta mengeksekusi perintah seperti tambah keahlian atau ganti desain. Semua diproses di browser, datamu tidak dikirim ke mana-mana."); return;
+  }
+  aiAddMsg("bot", "Aku belum yakin maksudnya. Coba salah satu: “Buatkan ringkasan”, “Apa yang kurang?”, “Saran kata kerja”, atau perintah “tambah keahlian Excel”."); 
+}
+function aiSend(){
+  var inp = document.getElementById("aiInput");
+  var v = inp.value.trim();
+  if(!v) return;
+  inp.value = "";
+  aiAnswer(v);
+}
+document.getElementById("aiSend").addEventListener("click", aiSend);
+document.getElementById("aiInput").addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); aiSend(); } });
+document.querySelectorAll("[data-ai-chip]").forEach(function(b){
+  b.addEventListener("click", function(){
+    var k = b.getAttribute("data-ai-chip");
+    if(k === "ringkasan") aiAnswer("Buatkan ringkasan");
+    else if(k === "perbaiki") aiAnswer("Perbaiki ringkasan");
+    else if(k === "kurang") aiAnswer("Apa yang kurang?");
+    else if(k === "katakerja") aiAnswer("Saran kata kerja");
+    else if(k === "ats") aiAnswer("Cek ATS singkat");
+  });
+});
+document.getElementById("aiLog").addEventListener("click", function(e){
+  var btn = e.target.closest ? e.target.closest("[data-ai-apply]") : null;
+  if(!btn || !lastSummary) return;
+  state.summaryText = lastSummary; syncAllUI(); markSaved();
+  aiAddMsg("bot", "Ringkasan sudah dipakai dan muncul di pratinjau.");
+});
+aiAddMsg("bot", "Halo, aku Asisten CV. Coba tekan “Buatkan ringkasan” setelah kamu mengisi nama, jabatan, dan pengalaman — atau tanya apa yang kurang di CV-mu.");
 
 /* ============================== Init ============================== */
 var locDl = document.getElementById("locList");

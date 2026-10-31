@@ -110,7 +110,6 @@
       <section class="panel" id="finishPanel" hidden aria-labelledby="finishTitle">
         <div class="panel-head"><h3 id="finishTitle">Selesai</h3></div>
         <div class="panel-body">
-          <p style="margin:0 0 12px">Periksa pratinjau, lalu unduh hasilnya.</p>
           <div class="toolbar">
             <button class="btn primary" id="btnPdf2" type="button">Unduh PDF</button>
             <button class="btn" id="btnDocx2" type="button">Unduh DOCX</button>
@@ -142,6 +141,25 @@
           <div id="kwResult" aria-live="polite"></div>
         </div>
       </section>
+      <section class="panel wizard-hide" aria-labelledby="aiTitle">
+        <div class="panel-head"><h3 id="aiTitle">Asisten CV</h3></div>
+        <div class="panel-body">
+          <p class="hint" style="margin:0 0 10px">Rekomendasi disusun di browser dari data yang sudah kamu isi. Tanpa API key, tanpa kirim data ke server.</p>
+          <div class="ai-log" id="aiLog" aria-live="polite"></div>
+          <div class="ai-chips" role="group" aria-label="Perintah cepat">
+            <button type="button" class="btn small" data-ai-chip="ringkasan">Buatkan ringkasan</button>
+            <button type="button" class="btn small" data-ai-chip="perbaiki">Perbaiki ringkasan</button>
+            <button type="button" class="btn small" data-ai-chip="kurang">Apa yang kurang?</button>
+            <button type="button" class="btn small" data-ai-chip="katakerja">Saran kata kerja</button>
+            <button type="button" class="btn small" data-ai-chip="ats">Cek ATS singkat</button>
+          </div>
+          <div class="ai-row">
+            <input type="text" id="aiInput" placeholder="Tanya atau perintahkan, mis. tambah keahlian Excel…" aria-label="Pesan untuk Asisten CV">
+            <button class="btn small primary" id="aiSend" type="button">Kirim</button>
+          </div>
+          <p class="hint" style="margin:8px 0 0">Bisa juga mengeksekusi: “tambah keahlian …”, “tambah bahasa …”, “matikan foto”, “pakai desain Klasik ATS”, “font 10pt”.</p>
+        </div>
+      </section>
     </div>
 
     <div class="preview-col">
@@ -157,11 +175,10 @@
           <span class="hint" id="previewMeta"></span>
         </div>
         <div class="paper fs-11" id="paper"></div>
-        <p class="foot-note">Pratinjau selalu di kertas putih agar sama dengan hasil cetak &amp; PDF. Data tidak dikirim ke server — gunakan Ekspor JSON sebagai cadangan.</p>
       </div>
     </div>
   </div>
-  <footer class="site-foot"><span>Struktur: index.html &middot; styles.css &middot; app.js</span><span>Pratinjau CV tetap kertas putih, satu kolom.</span></footer>
+  <footer class="site-foot"><span>Created by Yssufszz</span></footer>
 </div>
 
 <datalist id="locList"></datalist>
