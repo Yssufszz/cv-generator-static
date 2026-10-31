@@ -189,7 +189,7 @@ function markSaved(){
   saveTimer = setTimeout(function(){
     var d = new Date();
     var hh = String(d.getHours()).padStart(2,"0"), mm = String(d.getMinutes()).padStart(2,"0");
-    el.textContent = "Tersimpan otomatis di sesi ini · " + hh + ":" + mm + " — ekspor JSON untuk cadangan permanen.";
+    el.textContent = "Tersimpan otomatis di browser ini · " + hh + ":" + mm + " — ekspor JSON untuk cadangan lintas perangkat.";
   }, 350);
 }
 function yearsOptions(sel){
@@ -821,6 +821,7 @@ document.getElementById("btnExport").addEventListener("click", function(){
   var data = JSON.parse(JSON.stringify(state));
   delete data.photoData;
   downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}), fileBase() + "_data.json");
+  dirtySinceExport = false;
   toast("JSON diekspor — simpan sebagai cadangan.");
 });
 document.getElementById("btnImport").addEventListener("click", function(){ document.getElementById("fileImport").click(); });
@@ -920,6 +921,7 @@ document.getElementById("btnReset").addEventListener("click", function(){ resetM
 document.getElementById("resetCancel").addEventListener("click", function(){ resetModal.classList.remove("open"); });
 resetModal.addEventListener("click", function(e){ if(e.target===resetModal) resetModal.classList.remove("open"); });
 document.getElementById("resetConfirm").addEventListener("click", function(){
+  clearLocal();
   state = defaultState();
   drafts = [ { name:"Draft 1", data: state } ];
   activeDraft = 0; draftCounter = 1;
@@ -952,7 +954,7 @@ function buildPDF(){
   var y = margin;
   var navyRGB = [27,58,92], black = [17,17,17], gray = [90,90,90];
   function ensure(space){
-    if(y + price > 297 - margin){ doc.addPage(); y = margin; }
+    if(y + (space || 0) > 297 - margin){ doc.addPage(); y = margin; }
   }
   function write(text, size, style, rgb, gapAfter, indent){
     doc.setFont(baseFont, style); doc.setFontSize(size); doc.setTextColor(rgb[0],rgb[1],rgb[2]);
@@ -997,7 +999,8 @@ function buildPDF(){
     cl.forEach(function(ln){ doc.text(ln, headX, y, headOpt); y += lineH; });
   }
   if(hasPhoto){
-    try{ doc.addImage(photoSrc, "JPEG", headAlign==="right" ? margin : pageW - margin - photoW, margin, photoW, photoH); }catch(e){}
+    var photoFmt = photoSrc.indexOf("image/png") >= 0 ? "PNG" : "JPEG";
+    try{ doc.addImage(photoSrc, photoFmt, headAlign==="right" ? margin : pageW - margin - photoW, margin, photoW, photoH); }catch(e){ /* foto WebP/tidak didukung dilewati, PDF tetap jadi */ }
     if(y < margin + photoH) y = margin + photoH;
   }
   y += 1.5;
@@ -1296,10 +1299,60 @@ function toggleAi(open){
 })();
 document.addEventListener("keydown", function(e){ if(e.key === "Escape") toggleAi(false); });
 
+
+/* ============================== Penyimpanan lokal (dengan fallback) ============================== */
+/* Urutan fallback: 1) localStorage di browser ini (bertahan refresh/tutup tab),
+   2) kalau localStorage tidak tersedia/penuh, tetap jalan di memori sesi + peringatan tutup tab,
+   3) selalu ada Ekspor JSON manual sebagai cadangan lintas perangkat.
+   Foto tidak ikut disimpan lokal (bisa melewati kuota): foto harus dipilih ulang setelah restore. */
+var LOCAL_KEY = "berkas.cv.v2";
+var persistOk = true;
+var persistTimer = null;
+function persistLocal(){
+  try{
+    var copy = JSON.parse(JSON.stringify(drafts));
+    copy.forEach(function(d){
+      if(d.data){ d.data.photoData = null; d.data.photoName = ""; d.data.showPhoto = false; }
+    });
+    localStorage.setItem(LOCAL_KEY, JSON.stringify({ v: 2, savedAt: Date.now(), drafts: copy, activeDraft: activeDraft, draftCounter: draftCounter }));
+    persistOk = true;
+  }catch(e){ persistOk = false; }
+}
+function schedulePersist(){
+  clearTimeout(persistTimer);
+  persistTimer = setTimeout(persistLocal, 400);
+}
+function restoreLocal(){
+  try{
+    var raw = localStorage.getItem(LOCAL_KEY);
+    if(!raw) return false;
+    var saved = JSON.parse(raw);
+    if(!saved || !Array.isArray(saved.drafts) || !saved.drafts.length) return false;
+    var d0 = saved.drafts[0];
+    if(!d0 || !d0.data || !d0.data.personal || !d0.data.items) return false;
+    drafts = saved.drafts;
+    activeDraft = (typeof saved.activeDraft === "number" && saved.activeDraft >= 0 && saved.activeDraft < drafts.length) ? saved.activeDraft : 0;
+    draftCounter = typeof saved.draftCounter === "number" ? saved.draftCounter : drafts.length;
+    state = drafts[activeDraft].data;
+    // ID item harus unik: lanjutkan counter dari ID terbesar yang tersimpan.
+    var maxId = 0;
+    drafts.forEach(function(d){
+      Object.keys(d.data.items || {}).forEach(function(k){
+        (d.data.items[k] || []).forEach(function(it){ if(it.id && it.id > maxId) maxId = it.id; });
+      });
+    });
+    uid = maxId;
+    return true;
+  }catch(e){ return false; }
+}
+function clearLocal(){
+  try{ localStorage.removeItem(LOCAL_KEY); }catch(e){}
+}
+
 /* ============================== Mode Fokus + peringatan tutup tab ============================== */
 var dirtySinceExport = false;
 var _origMarkSaved = markSaved;
-markSaved = function(){ dirtySinceExport = true; _origMarkSaved(); };
+markSaved = function(){ dirtySinceExport = true; _origMarkSaved(); schedulePersist(); };
 document.getElementById("btnFocus").addEventListener("click", function(){
   var on = document.body.classList.toggle("focus-on");
   this.setAttribute("aria-pressed", on ? "true" : "false");
@@ -1314,8 +1367,11 @@ document.getElementById("btnCopySummary").addEventListener("click", function(){
 });
 window.addEventListener("beforeunload", function(e){
   if(dirtySinceExport){
-    e.preventDefault();
-    e.returnValue = "";
+    persistLocal();
+    if(!persistOk){
+      e.preventDefault();
+      e.returnValue = "";
+    }
   }
 });
 
@@ -1323,5 +1379,7 @@ window.addEventListener("beforeunload", function(e){
 var locDl = document.getElementById("locList");
 locDl.innerHTML = LOCATIONS.map(function(l){ return '<option value="'+esc(l)+'"></option>'; }).join("");
 themeLabel();
+var restored = restoreLocal();
 syncAllUI();
+if(restored){ toast("Draf terakhir dipulihkan dari browser ini. Foto tidak ikut tersimpan — pilih ulang kalau perlu."); }
 })();
