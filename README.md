@@ -1,4 +1,4 @@
-# CuVys v2.9.1
+# CuVys v2.9.2
 
 Alat CV statis yang ramah ATS: isi data sendiri dari kosong, atur bagian, pilih desain formal, dan unduh PDF gratis.
 
@@ -17,6 +17,8 @@ Nama situsnya CuVys.
 - 17 template formal satu kolom, ramah ATS, termasuk Formal Dokumen (serif Times, judul tengah bergaris atas, perusahaan di atas jabatan, kontak dua kolom)
 - Posisi kepala CV bisa Kiri, Tengah, atau Kanan
 - Relokasi ditulis di samping domisili dengan format "Domisili : Kota - (Terbuka untuk relokasi)" / "Domicile : City - (Open to relocation)", bukan baris terpisah
+- Header aplikasi dan landing memakai warna latar halaman (bukan strip kartu), jadi tidak beda sendiri
+- Header Formal Dokumen dirapikan: baris kontak jadi grid label/nilai (nilai panjang wrap di bawah nilai), kepala dokumen selalu rata kiri seperti PDF
 - Perataan isi CV (rata kiri, tengah, rata kanan, justify) berlaku di pratinjau, PDF, dan DOCX; kepala CV tidak ikut
 - Label kontak mengikuti bahasa CV (Domisili / Nomor Handphone vs Domicile / Mobile) di pratinjau, PDF, DOCX, dan teks; toggle "Terbuka untuk relokasi" menambah baris "Terbuka untuk relokasi" / "Open for relocation" di semua output - nama, jabatan, dan kontak yang pindah, isi CV tetap rata kiri (juga berlaku di PDF)
 - Lokasi dari daftar kota/kabupaten Indonesia yang bisa dicari, plus Remote dan Luar Negeri

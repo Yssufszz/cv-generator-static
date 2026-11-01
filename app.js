@@ -351,13 +351,13 @@ function contactDokumenHTML(){
   if(!li && !loc && !em && !ph && !ws) return "";
   function linkHref(v){ return /^https?:\/\//i.test(v) ? v : "https://" + v; }
   var left = "";
-  if(li) left += '<div class="cv-contact-line"><a href="' + esc(linkHref(li)) + '" target="_blank" rel="noopener">' + esc(li) + '</a></div>';
-  if(loc) left += '<div class="cv-contact-line"><span class="cv-contact-label">' + contactLabelEN("Domisili","Domicile") + ' :</span>' + esc(loc) + (state.personal.relocation ? ' - (' + esc(relocLabel()) + ')' : '') + '</div>';
-  if(!loc && state.personal.relocation) left += '<div class="cv-contact-line">(' + esc(relocLabel()) + ')</div>';
-  if(ws) left += '<div class="cv-contact-line">' + esc(ws) + '</div>';
+  if(li) left += '<div class="cv-contact-line plain"><a href="' + esc(linkHref(li)) + '" target="_blank" rel="noopener">' + esc(li) + '</a></div>';
+  if(loc) left += '<div class="cv-contact-line"><span class="cv-contact-label">' + contactLabelEN("Domisili","Domicile") + ' :</span><span class="cv-contact-value">' + esc(loc) + (state.personal.relocation ? ' - (' + esc(relocLabel()) + ')' : '') + '</span></div>';
+  if(!loc && state.personal.relocation) left += '<div class="cv-contact-line plain">(' + esc(relocLabel()) + ')</div>';
+  if(ws) left += '<div class="cv-contact-line plain">' + esc(ws) + '</div>';
   var right = "";
-  if(em) right += '<div class="cv-contact-line"><span class="cv-contact-label">Email :</span><a href="mailto:' + esc(em) + '">' + esc(em) + '</a></div>';
-  if(ph) right += '<div class="cv-contact-line"><span class="cv-contact-label">' + contactLabelEN("Nomor Handphone","Mobile") + ' :</span>' + esc(ph) + '</div>';
+  if(em) right += '<div class="cv-contact-line"><span class="cv-contact-label">Email :</span><span class="cv-contact-value"><a href="mailto:' + esc(em) + '">' + esc(em) + '</a></span></div>';
+  if(ph) right += '<div class="cv-contact-line"><span class="cv-contact-label">' + contactLabelEN("Nomor Handphone","Mobile") + ' :</span><span class="cv-contact-value">' + esc(ph) + '</span></div>';
   if(!left && !right) return "";
   return '<div class="cv-contact-grid"><div>' + left + '</div><div>' + right + '</div></div>';
 }
@@ -1055,31 +1055,53 @@ function buildPDF(){
     // Label mengikuti bahasa CV, dan nilai kolom kanan mulai di satu x yang sama agar sejajar.
     var midX = margin + maxW/2;
     var domLabel = contactLabelEN("Domisili","Domicile"), mobLabel = contactLabelEN("Nomor Handphone","Mobile");
-    var leftLines = [], rightLines = [];
-    if(p.linkedin.trim()) leftLines.push({ text: p.linkedin.trim(), link: true });
-    if(p.location.trim()) leftLines.push({ text: domLabel + " : " + p.location.trim() + (p.relocation ? " - (" + relocLabel() + ")" : ""), link: false });
-    if(!p.location.trim() && p.relocation) leftLines.push({ text: "(" + relocLabel() + ")", link: false });
-    if(p.website.trim()) leftLines.push({ text: p.website.trim(), link: true });
-    if(p.email.trim()) rightLines.push({ label: "Email", value: p.email.trim(), link: true });
-    if(p.phone.trim()) rightLines.push({ label: mobLabel, value: p.phone.trim(), link: false });
-    var rows = Math.max(leftLines.length, rightLines.length);
+    // Ubah baris kontak jadi item label/nilai agar nilai panjang bisa wrap
+    // rapi di bawah nilai (bukan menabrak kolom sebelah).
+    var leftItems = [], rightItems = [];
+    if(p.linkedin.trim()) leftItems.push({ label: null, value: p.linkedin.trim(), link: true });
+    if(p.location.trim()) leftItems.push({ label: domLabel, value: p.location.trim() + (p.relocation ? " - (" + relocLabel() + ")" : ""), link: false });
+    if(!p.location.trim() && p.relocation) leftItems.push({ label: null, value: "(" + relocLabel() + ")", link: false });
+    if(p.website.trim()) leftItems.push({ label: null, value: p.website.trim(), link: true });
+    if(p.email.trim()) rightItems.push({ label: "Email", value: p.email.trim(), link: true });
+    if(p.phone.trim()) rightItems.push({ label: mobLabel, value: p.phone.trim(), link: false });
+    var leftColW = midX - margin, rightColW = pageW - margin - midX;
     doc.setFont(baseFont,"normal"); doc.setFontSize(bodySize-0.5);
-    var labelW = 0;
-    rightLines.forEach(function(r){ var w = doc.getTextWidth(r.label + " : "); if(w > labelW) labelW = w; });
+    var labelWLeft = doc.getTextWidth(domLabel + " : ") + 1;
+    var labelWRight = 0;
+    rightItems.forEach(function(r){ var w = doc.getTextWidth(r.label + " : "); if(w > labelWRight) labelWRight = w; });
+    labelWRight += 1;
+    function wrapItem(item, colX, colW, labelW){
+      // Kembalikan array baris; tiap baris = array segmen {x, text, link}.
+      if(!item.label){
+        return doc.splitTextToSize(item.value, colW).map(function(ln){
+          return [{ x: colX, text: ln, link: item.link }];
+        });
+      }
+      var vLines = doc.splitTextToSize(item.value, Math.max(10, colW - labelW));
+      return vLines.map(function(ln, i){
+        if(i === 0) return [{ x: colX, text: item.label + " : ", link: false }, { x: colX + labelW, text: ln, link: item.link }];
+        return [{ x: colX + labelW, text: ln, link: item.link }];
+      });
+    }
+    var rows = Math.max(leftItems.length, rightItems.length);
     for(var ci = 0; ci < rows; ci++){
-      ensure(lineH);
-      if(leftLines[ci]){
-        doc.setTextColor(leftLines[ci].link ? 5 : 0, leftLines[ci].link ? 99 : 0, leftLines[ci].link ? 193 : 0);
-        doc.text(leftLines[ci].text, margin, y);
-      }
-      if(rightLines[ci]){
-        var rl = rightLines[ci];
-        doc.setTextColor(0,0,0);
-        doc.text(rl.label + " : ", midX, y);
-        doc.setTextColor(rl.link ? 5 : 0, rl.link ? 99 : 0, rl.link ? 193 : 0);
-        doc.text(rl.value, midX + labelW, y);
-      }
-      y += lineH;
+      var lLines = leftItems[ci] ? wrapItem(leftItems[ci], margin, leftColW, labelWLeft) : [];
+      var rLines = rightItems[ci] ? wrapItem(rightItems[ci], midX, rightColW, labelWRight) : [];
+      var maxL = Math.max(lLines.length, rLines.length);
+      ensure(lineH * maxL);
+      lLines.forEach(function(segs, li){
+        segs.forEach(function(sg){
+          doc.setTextColor(sg.link ? 5 : 0, sg.link ? 99 : 0, sg.link ? 193 : 0);
+          doc.text(sg.text, sg.x, y + li * lineH);
+        });
+      });
+      rLines.forEach(function(segs, ri){
+        segs.forEach(function(sg){
+          doc.setTextColor(sg.link ? 5 : 0, sg.link ? 99 : 0, sg.link ? 193 : 0);
+          doc.text(sg.text, sg.x, y + ri * lineH);
+        });
+      });
+      y += maxL * lineH;
     }
     doc.setTextColor(0,0,0);
   } else if(contactLine()){

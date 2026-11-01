@@ -266,7 +266,7 @@ body{font-size:15px}
 @media (max-width:560px){.designs{grid-template-columns:1fr 1fr}}
 
 /* ---------- Header CuV (workbench, sticky) ---------- */
-.site-header{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;background:var(--surface);border-bottom:2px solid var(--ink);padding:16px 0 14px;margin-bottom:14px}
+.site-header{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;background:var(--bg);border-bottom:2px solid var(--ink);padding:16px 0 14px;margin-bottom:14px}
 .brand-mark{font-family:"IBM Plex Serif",Georgia,serif;font-size:30px;line-height:1.25;margin:0;font-weight:700;letter-spacing:-.02em}
 /* Anchor dari nav header tidak boleh ketutup header sticky saat melompat. */
 html{scroll-padding-top:84px}
@@ -309,8 +309,10 @@ body.focus-on .layout{grid-template-columns:1fr}
 .paper.design-dokumen .cv-name{font-size:24px}
 .paper.design-dokumen .cv-contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 28px;margin-top:8px;font-size:.96em;line-height:1.5;align-items:start}
 .paper.design-dokumen .cv-contact-grid a{color:#0563c1;text-decoration:underline}
-.paper.design-dokumen .cv-contact-line{margin-bottom:1px;display:flex;gap:6px}
-.paper.design-dokumen .cv-contact-label{min-width:118px;flex:none}
+.paper.design-dokumen .cv-contact-line{margin-bottom:1px;display:grid;grid-template-columns:118px minmax(0,1fr);gap:6px}
+.paper.design-dokumen .cv-contact-label{min-width:0}
+.paper.design-dokumen .cv-contact-line.plain{grid-template-columns:minmax(0,1fr)}
+.paper.design-dokumen .cv-contact-value{min-width:0;overflow-wrap:break-word}
 .paper.design-dokumen h4.cv-sec{text-align:center;border-bottom:none;border-top:1px solid #000;padding-top:7px;margin:24px 0 10px;letter-spacing:.02em;font-size:1.06em}
 .paper.design-dokumen h4.cv-sec + p{text-align:justify}
 .paper.design-dokumen .cv-exp{display:flex;flex-direction:column}
@@ -323,6 +325,8 @@ body.focus-on .layout{grid-template-columns:1fr}
 .paper.head-center .cv-head-text{text-align:center}
 .paper.head-right .cv-head-text{text-align:right}
 .paper.head-right .cv-head{flex-direction:row-reverse}
+.paper.design-dokumen.head-center .cv-head-text, .paper.design-dokumen.head-right .cv-head-text{text-align:left}
+.paper.design-dokumen.head-right .cv-head{flex-direction:row}
 /* ---------- Perataan isi CV (pratinjau): kepala tidak ikut ---------- */
 .paper.body-left .cv-item, .paper.body-left h4.cv-sec + p{text-align:left}
 .paper.body-center .cv-item, .paper.body-center h4.cv-sec + p{text-align:center}
