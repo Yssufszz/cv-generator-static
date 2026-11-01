@@ -1,4 +1,4 @@
-# CuVys v2.6.0
+# CuVys v2.7.0
 
 Alat CV statis yang ramah ATS: isi data sendiri dari kosong, atur bagian, pilih desain formal, dan unduh PDF gratis.
 
@@ -8,7 +8,7 @@ Nama situsnya CuVys.
 - `index.html` - landing page
 - `app.html` - struktur halaman aplikasi
 - `landing.css` - gaya landing page
-- `icon.png` - ikon situs
+- `icon.svg` - ikon situs (lingkaran navy)
 - `styles.css` - gaya tampilan aplikasi (kertas CV sengaja tetap polos dan ramah ATS)
 - `app.js` - logika aplikasi: draf, pratinjau, cek ATS, cek kata kunci, ekspor PDF/DOCX/JSON
 

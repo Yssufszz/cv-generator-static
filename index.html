@@ -3,60 +3,122 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<!-- CuVys v2.6.0 -->
+<!-- CuVys v2.7.0 -->
 <title>CuVys</title>
 <meta name="description" content="CuVys - Buat CV gratis. Isi data, pilih desain, unduh PDF." />
-<link rel="icon" type="image/svg+xml" href="icon.svg" />
-<link rel="stylesheet" href="landing.css?v=v2.6.0" />
+<link rel="icon" type="image/svg+xml" href="icon.svg?v=v2.7.0" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="landing.css?v=v2.7.0" />
+<script>try{document.documentElement.dataset.theme=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}catch(e){}</script>
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="index.html"><img src="icon.svg" alt="" width="32" height="32" /><span>CuVys</span></a>
-  <nav>
-    <a href="app.html">Masuk</a>
-    <a class="btn" href="app.html">Mulai buat CV</a>
-  </nav>
+  <div class="top-inner">
+    <a class="brand" href="index.html"><img src="icon.svg?v=v2.7.0" alt="" width="36" height="36" /><span>CuVys</span></a>
+    <nav>
+      <a href="app.html">Masuk</a>
+      <a class="btn primary" href="app.html">Mulai buat CV</a>
+    </nav>
+  </div>
 </header>
 
-<main>
+<main class="wrap">
   <section class="hero">
-    <h1>Buat CV yang enak dibaca.</h1>
-    <p>CuVys itu alat buat CV. Kamu isi datamu sendiri, pilih desain, lalu unduh sebagai PDF. Gratis.</p>
-    <p><a class="btn big" href="app.html">Mulai buat CV</a></p>
-    <p class="small">Perlu daftar pakai email, supaya drafmu tersimpan di akunmu.</p>
+    <div class="hero-copy">
+      <p class="eyebrow">Alat buat CV - gratis</p>
+      <h1>Buat CV yang enak dibaca.</h1>
+      <p class="lede">CuVys itu alat buat CV. Kamu isi datamu sendiri, pilih desain, lalu unduh sebagai PDF. Gratis.</p>
+      <p class="cta-row">
+        <a class="btn primary big" href="app.html">Mulai buat CV</a>
+        <a class="btn big" href="app.html">Masuk</a>
+      </p>
+      <p class="small">Perlu daftar pakai email, supaya drafmu tersimpan di akunmu.</p>
+    </div>
+    <div class="hero-paper" aria-hidden="true">
+      <div class="mock">
+        <p class="mock-name">Nama Kamu</p>
+        <p class="mock-role">Jabatan yang dilamar</p>
+        <p class="mock-contact">email@contoh.com - 0812-0000-0000 - Jakarta</p>
+        <hr />
+        <p class="mock-head">Pengalaman</p>
+        <p class="mock-line"><strong>PT Contoh</strong> <span>2022 - Sekarang</span></p>
+        <p class="mock-line">Staff Administrasi</p>
+        <div class="bar" style="width:92%"></div>
+        <div class="bar" style="width:78%"></div>
+        <p class="mock-head">Pendidikan</p>
+        <p class="mock-line"><strong>Universitas Contoh</strong> <span>2018 - 2022</span></p>
+        <div class="bar" style="width:64%"></div>
+      </div>
+      <p class="mock-cap">Pratinjau salah satu desain di aplikasi.</p>
+    </div>
   </section>
 
   <section>
     <h2>Caranya</h2>
-    <ol class="steps">
-      <li><strong>Daftar pakai email.</strong> Akunmu dipakai untuk menyimpan draf.</li>
-      <li><strong>Isi data CV.</strong> Pengalaman, pendidikan, keahlian, dan kontak. Bagian yang tidak perlu bisa dimatikan.</li>
-      <li><strong>Pilih desain dan unduh.</strong> Pratinjau langsung terlihat, lalu unduh sebagai PDF.</li>
-    </ol>
+    <div class="steps">
+      <div class="card step">
+        <p class="num">01</p>
+        <h3>Daftar pakai email</h3>
+        <p>Akunmu dipakai untuk menyimpan draf.</p>
+      </div>
+      <div class="card step">
+        <p class="num">02</p>
+        <h3>Isi data CV</h3>
+        <p>Pengalaman, pendidikan, keahlian, dan kontak. Bagian yang tidak perlu bisa dimatikan.</p>
+      </div>
+      <div class="card step">
+        <p class="num">03</p>
+        <h3>Pilih desain dan unduh</h3>
+        <p>Pratinjau langsung terlihat, lalu unduh sebagai PDF.</p>
+      </div>
+    </div>
   </section>
 
   <section>
     <h2>Yang ada di dalamnya</h2>
-    <ul class="features">
-      <li>17 desain formal satu kolom. Desainnya dibuat agar mudah dibaca sistem lamaran dan manusia.</li>
-      <li>Judul bagian bisa berbahasa Indonesia atau Inggris.</li>
-      <li>Posisi nama dan kontak bisa diatur ke kiri, tengah, atau kanan.</li>
-      <li>Cek kelengkapan CV dan cek kata kunci lowongan. Pengecekan ini tidak mengubah isi CV-mu.</li>
-      <li>Ekspor PDF, DOCX, dan JSON. JSON dipakai sebagai cadangan dan untuk pindah perangkat.</li>
-      <li>Draf tersimpan di akun, jadi bisa dibuka dari perangkat lain.</li>
-      <li>Asisten di browser yang memberi saran dari data yang sudah kamu isi.</li>
-    </ul>
+    <div class="features">
+      <div class="card">
+        <h3>17 desain</h3>
+        <p>Desain formal satu kolom, dibuat agar mudah dibaca sistem lamaran dan manusia.</p>
+      </div>
+      <div class="card">
+        <h3>Dua bahasa judul</h3>
+        <p>Judul bagian bisa berbahasa Indonesia atau Inggris.</p>
+      </div>
+      <div class="card">
+        <h3>Posisi kepala CV</h3>
+        <p>Posisi nama dan kontak bisa diatur ke kiri, tengah, atau kanan.</p>
+      </div>
+      <div class="card">
+        <h3>Cek kelengkapan</h3>
+        <p>Cek kelengkapan CV dan cek kata kunci lowongan. Pengecekan ini tidak mengubah isi CV-mu.</p>
+      </div>
+      <div class="card">
+        <h3>Ekspor PDF, DOCX, JSON</h3>
+        <p>JSON dipakai sebagai cadangan dan untuk pindah perangkat.</p>
+      </div>
+      <div class="card">
+        <h3>Draf tersimpan di akun</h3>
+        <p>Draf bisa dibuka dari perangkat lain, selama kamu masuk dengan akun yang sama.</p>
+      </div>
+      <div class="card">
+        <h3>Asisten di browser</h3>
+        <p>Memberi saran dari data yang sudah kamu isi, tanpa AI eksternal.</p>
+      </div>
+    </div>
   </section>
 
-  <section>
-    <h2>Buat siapa</h2>
-    <p>Buat siapa pun yang butuh CV rapi tanpa membayar jasa pembuatan CV. Kalau kamu sudah punya isi CV di kepala, sisanya tinggal mengetik dan memilih desain.</p>
-    <p><a class="btn" href="app.html">Mulai buat CV</a></p>
+  <section class="cta-band">
+    <h2>Sudah punya isi CV di kepala?</h2>
+    <p>Sisanya tinggal mengetik dan memilih desain. Tidak perlu membayar jasa pembuatan CV.</p>
+    <p><a class="btn light big" href="app.html">Mulai buat CV</a></p>
   </section>
 </main>
 
 <footer>
-  <p>CuVys v2.6.0 - Dibuat oleh Yssufszz.</p>
+  <p>CuVys v2.7.0 - Dibuat oleh Yssufszz.</p>
 </footer>
 </body>
 </html>
