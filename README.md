@@ -1,4 +1,4 @@
-# CuVys v2.9.0
+# CuVys v2.9.1
 
 Alat CV statis yang ramah ATS: isi data sendiri dari kosong, atur bagian, pilih desain formal, dan unduh PDF gratis.
 

@@ -266,8 +266,13 @@ body{font-size:15px}
 @media (max-width:560px){.designs{grid-template-columns:1fr 1fr}}
 
 /* ---------- Header CuV (workbench, sticky) ---------- */
-.site-header{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;background:var(--surface);border-bottom:2px solid var(--ink);padding:12px 0;margin-bottom:14px}
-.brand-mark{font-family:"IBM Plex Serif",Georgia,serif;font-size:30px;line-height:1;margin:0;font-weight:700;letter-spacing:-.02em}
+.site-header{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;background:var(--surface);border-bottom:2px solid var(--ink);padding:16px 0 14px;margin-bottom:14px}
+.brand-mark{font-family:"IBM Plex Serif",Georgia,serif;font-size:30px;line-height:1.25;margin:0;font-weight:700;letter-spacing:-.02em}
+/* Anchor dari nav header tidak boleh ketutup header sticky saat melompat. */
+html{scroll-padding-top:84px}
+#formCol,#designList,#paper{scroll-margin-top:84px}
+@media (max-width:900px){.site-header{gap:10px 16px}}
+@media (max-width:560px){.brand-mark{font-size:26px}}
 .brand-sub{margin:4px 0 0;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:600}
 .header-nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
 .header-nav a,.header-nav button{border:0;background:transparent;color:var(--muted);font-weight:600;font-size:14px;padding:7px 10px;border-radius:6px;text-decoration:none}
