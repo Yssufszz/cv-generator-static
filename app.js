@@ -335,7 +335,7 @@ function contactLine(){
 }
 function contactDokumenHTML(){
   // Kontak dua kolom ala contoh dokumen: kiri LinkedIn + domisili, kanan Email + Mobile.
-  // Hanya pakai field yang sudah ada di Berkas (linkedin, location, email, phone, website);
+  // Hanya pakai field yang sudah ada di CuV (linkedin, location, email, phone, website);
   // kalau field kosong, barisnya dihilangkan, bukan diisi data contoh.
   var p = state.personal;
   var li = String(p.linkedin || "").trim(), loc = String(p.location || "").trim();
@@ -827,7 +827,7 @@ document.getElementById("btnKw").addEventListener("click", function(){
     miss.slice(0, 8).map(function(w){ return '<button type="button" class="btn small" data-kw-add="'+esc(w)+'">+ '+esc(w)+'</button>'; }).join("") + '</div>' : '');
 });
 
-/* ============================== Berkas: JSON / teks / DOCX ============================== */
+/* ============================== CuV: JSON / teks / DOCX ============================== */
 function downloadBlob(blob, filename){
   var url = URL.createObjectURL(blob);
   var a = document.createElement("a");
@@ -1476,7 +1476,7 @@ function setAuthTab(mode){
   if(tl) tl.setAttribute("aria-pressed", mode === "login" ? "true" : "false");
   if(tr) tr.setAttribute("aria-pressed", mode === "register" ? "true" : "false");
   if(sb) sb.textContent = mode === "login" ? "Masuk" : "Daftar";
-  if(ti) ti.textContent = mode === "login" ? "Masuk untuk membuka CV-mu" : "Daftar akun Berkas.";
+  if(ti) ti.textContent = mode === "login" ? "Masuk untuk membuka CV-mu" : "Daftar akun CuV";
 }
 async function loadSupabaseConfig(){
   if(window.BERKAS_SUPABASE && window.BERKAS_SUPABASE.url && window.BERKAS_SUPABASE.anonKey){

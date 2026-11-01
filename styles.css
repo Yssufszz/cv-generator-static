@@ -265,7 +265,7 @@ body{font-size:15px}
 .designs{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
 @media (max-width:560px){.designs{grid-template-columns:1fr 1fr}}
 
-/* ---------- Header Berkas. (workbench, sticky) ---------- */
+/* ---------- Header CuV (workbench, sticky) ---------- */
 .site-header{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;background:var(--surface);border-bottom:2px solid var(--ink);padding:12px 0;margin-bottom:14px}
 .brand-mark{font-family:"IBM Plex Serif",Georgia,serif;font-size:30px;line-height:1;margin:0;font-weight:700;letter-spacing:-.02em}
 .brand-sub{margin:4px 0 0;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:600}

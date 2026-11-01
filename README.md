@@ -1,8 +1,8 @@
-# Berkas. v2.4.0
+# CuV v2.5.0
 
 Alat CV statis yang ramah ATS: isi data sendiri dari kosong, atur bagian, pilih desain formal, dan unduh PDF gratis.
 
-Nama situsnya Berkas. — "CV yang dibaca mesin, ditulis manusia."
+Nama situsnya CuV — "CV yang dibaca mesin, ditulis manusia."
 
 ## Struktur file
 - `index.html` — struktur halaman
