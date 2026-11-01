@@ -138,7 +138,6 @@
   .paper .cv-name{font-size:26px;font-weight:700;line-height:1.15;margin:0}
   .paper .cv-role{font-size:1.08em;margin:3px 0 0}
   .paper .cv-contact{font-size:.93em;margin-top:6px;word-break:break-word}
-  .paper .cv-reloc{font-size:.93em;margin-top:4px}
   .paper .cv-head{display:flex;gap:18px;align-items:flex-start}
   .paper .cv-head-text{flex:1;min-width:0}
   .paper .cv-photo{width:96px;height:120px;object-fit:cover;border:1px solid #bbb;flex:none}
@@ -319,6 +318,11 @@ body.focus-on .layout{grid-template-columns:1fr}
 .paper.head-center .cv-head-text{text-align:center}
 .paper.head-right .cv-head-text{text-align:right}
 .paper.head-right .cv-head{flex-direction:row-reverse}
+/* ---------- Perataan isi CV (pratinjau): kepala tidak ikut ---------- */
+.paper.body-left .cv-item, .paper.body-left h4.cv-sec + p{text-align:left}
+.paper.body-center .cv-item, .paper.body-center h4.cv-sec + p{text-align:center}
+.paper.body-right .cv-item, .paper.body-right h4.cv-sec + p{text-align:right}
+.paper.body-justify .cv-item, .paper.body-justify h4.cv-sec + p{text-align:justify}
 /* ---------- Polish kertas ala contoh: nama kapital, judul tegas ---------- */
 .paper .cv-name{text-transform:uppercase;letter-spacing:.01em}
 .paper h4.cv-sec{letter-spacing:.08em}

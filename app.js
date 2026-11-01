@@ -126,7 +126,7 @@ function blankItem(key){
 }
 function defaultState(){
   var s = {
-    lang:"id", design:"klasik", fontPt:11, headAlign:"left", showPhoto:false, photoData:null, photoName:"",
+    lang:"id", design:"klasik", fontPt:11, headAlign:"left", bodyAlign:"left", showPhoto:false, photoData:null, photoName:"",
     personal:{ name:"", role:"", email:"", phone:"", location:"", linkedin:"", website:"", relocation:false },
     summaryText:"", customTitles:{},
     sectionEnabled:{}, order: SECTION_KEYS.slice(), items:{}
@@ -224,7 +224,7 @@ function personalPanel(){
     f("phone","Nomor HP","tel","08xxxxxxxxxx")+
     f("location","Kota domisili","text","Ketik lalu pilih dari daftar",false,' list="locList"')+
     f("linkedin","LinkedIn (opsional)","text","linkedin.com/in/…")+
-    '<div class="field full"><label class="now-check"><input type="checkbox" data-personal="relocation"'+(p.relocation?' checked':'')+'> Terbuka untuk relokasi</label><p class="hint">Muncul di CV sebagai "Terbuka untuk relokasi", atau "Open for relocation" kalau judul bagian berbahasa Inggris.</p></div>'+
+    '<div class="field full"><label class="now-check"><input type="checkbox" data-personal="relocation"'+(p.relocation?' checked':'')+'> Terbuka untuk relokasi</label><p class="hint">Ditulis di samping kota domisili, mis. "Jakarta - (Terbuka untuk relokasi)", atau "Open for relocation" kalau judul bagian berbahasa Inggris.</p></div>'+
     f("website","Website / Portofolio / GitHub (opsional)","text","https://…",true)+
     '</div></div></section>';
 }
@@ -334,7 +334,11 @@ function relocLabel(){ return state.lang==="en" ? "Open for relocation" : "Terbu
 function contactLabelEN(idLabel, enLabel){ return state.lang==="en" ? enLabel : idLabel; }
 function contactLine(){
   var p = state.personal;
-  return [p.email,p.phone,p.location,p.linkedin,p.website].map(function(v){return String(v||"").trim();}).filter(Boolean).join("  •  ");
+  var loc = String(p.location||"").trim();
+  if(loc && p.relocation) loc += " - (" + relocLabel() + ")";
+  var segs = [p.email, p.phone, loc, p.linkedin, p.website].map(function(v){return String(v||"").trim();}).filter(Boolean);
+  if(!loc && p.relocation) segs.splice(2, 0, "(" + relocLabel() + ")");
+  return segs.join("  •  ");
 }
 function contactDokumenHTML(){
   // Kontak dua kolom ala contoh dokumen: kiri LinkedIn + domisili, kanan Email + nomor handphone.
@@ -348,7 +352,8 @@ function contactDokumenHTML(){
   function linkHref(v){ return /^https?:\/\//i.test(v) ? v : "https://" + v; }
   var left = "";
   if(li) left += '<div class="cv-contact-line"><a href="' + esc(linkHref(li)) + '" target="_blank" rel="noopener">' + esc(li) + '</a></div>';
-  if(loc) left += '<div class="cv-contact-line"><span class="cv-contact-label">' + contactLabelEN("Domisili","Domicile") + ' :</span>' + esc(loc) + '</div>';
+  if(loc) left += '<div class="cv-contact-line"><span class="cv-contact-label">' + contactLabelEN("Domisili","Domicile") + ' :</span>' + esc(loc) + (state.personal.relocation ? ' - (' + esc(relocLabel()) + ')' : '') + '</div>';
+  if(!loc && state.personal.relocation) left += '<div class="cv-contact-line">(' + esc(relocLabel()) + ')</div>';
   if(ws) left += '<div class="cv-contact-line">' + esc(ws) + '</div>';
   var right = "";
   if(em) right += '<div class="cv-contact-line"><span class="cv-contact-label">Email :</span><a href="mailto:' + esc(em) + '">' + esc(em) + '</a></div>';
@@ -399,7 +404,7 @@ function sectionContentHTML(key){
 }
 function renderPreview(){
   var paper = document.getElementById("paper");
-  paper.className = "paper design-" + state.design + " fs-" + state.fontPt + " head-" + (state.headAlign || "left");
+  paper.className = "paper design-" + state.design + " fs-" + state.fontPt + " head-" + (state.headAlign || "left") + " body-" + (state.bodyAlign || "left");
   paper.style.zoom = zoomVal;
   var p = state.personal;
   var photoHTML = "";
@@ -412,9 +417,8 @@ function renderPreview(){
   var head = '<div class="cv-head"><div class="cv-head-text">'+
     (p.name.trim() ? '<p class="cv-name">'+esc(p.name.trim())+'</p>' : '<p class="cv-name cv-empty">'+(state.lang==="en" ? 'Full Name' : 'Nama Lengkap')+'</p>')+
     (p.role.trim() ? '<p class="cv-role">'+esc(p.role.trim())+'</p>' : '')+
-    (state.design==="dokumen" ? (contactDokumenHTML() || (state.personal.relocation ? '' : '<p class="cv-contact cv-empty">'+(state.lang==="en" ? 'email • phone • city' : 'email • nomor HP • kota domisili')+'</p>'))
-      : (contactLine() ? '<p class="cv-contact">'+esc(contactLine())+'</p>' : (state.personal.relocation ? '' : '<p class="cv-contact cv-empty">'+(state.lang==="en" ? 'email • phone • city' : 'email • nomor HP • kota domisili')+'</p>'))) +
-    (state.personal.relocation ? '<p class="cv-reloc">'+esc(relocLabel())+'</p>' : '')+
+    (state.design==="dokumen" ? (contactDokumenHTML() || '<p class="cv-contact cv-empty">'+(state.lang==="en" ? 'email • phone • city' : 'email • nomor HP • kota domisili')+'</p>')
+      : (contactLine() ? '<p class="cv-contact">'+esc(contactLine())+'</p>' : (state.personal.relocation ? '<p class="cv-contact">('+esc(relocLabel())+')</p>' : '<p class="cv-contact cv-empty">'+(state.lang==="en" ? 'email • phone • city' : 'email • nomor HP • kota domisili')+'</p>')))+
     '</div>'+photoHTML+'</div>';
   var body = "";
   state.order.forEach(function(k){
@@ -497,7 +501,6 @@ function buildPlainText(){
   out.push((p.name.trim() || (state.lang==="en" ? "Full Name" : "Nama Lengkap")).toUpperCase());
   if(p.role.trim()) out.push(p.role.trim());
   if(contactLine()) out.push(contactLine());
-  if(p.relocation) out.push(relocLabel());
   state.order.forEach(function(key){
     if(!state.sectionEnabled[key]) return;
     if(key==="summary"){
@@ -651,7 +654,7 @@ document.getElementById("btnDelDraft").addEventListener("click", function(){
 function syncAllUI(){
   document.getElementById("photoToggle").checked = state.showPhoto;
   document.getElementById("photoName").textContent = state.photoName || "Belum ada foto";
-  syncLangSeg(); syncFontSeg(); syncAlignSeg(); renderDesigns(); renderDrafts(); renderForm();
+  syncLangSeg(); syncFontSeg(); syncAlignSeg(); syncBodyAlignSeg(); renderDesigns(); renderDrafts(); renderForm();
 }
 
 /* ============================== Wizard events ============================== */
@@ -864,6 +867,7 @@ document.getElementById("fileImport").addEventListener("change", function(e){
       fresh.design = DESIGNS.some(function(d){return d.id===data.design;}) ? data.design : "klasik";
       fresh.fontPt = [10,11,12].indexOf(Number(data.fontPt))>=0 ? Number(data.fontPt) : 11;
       fresh.headAlign = ["left","center","right"].indexOf(data.headAlign)>=0 ? data.headAlign : "left";
+      fresh.bodyAlign = ["left","center","right","justify"].indexOf(data.bodyAlign)>=0 ? data.bodyAlign : "left";
       fresh.showPhoto = !!data.showPhoto;
       fresh.photoData = safePhotoData(data.photoData);
       fresh.photoName = fresh.photoData ? String(data.photoName||"Foto impor") : "";
@@ -921,7 +925,7 @@ function buildDocx(){
     var style = "";
     if(ln === nameLine){ style = '<w:pPr><w:spacing w:after="60"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="32"/></w:rPr><w:t xml:space="preserve">'+xmlEsc(ln)+'</w:t></w:r>'; }
     else if(headings[ln]){ style = '<w:pPr><w:spacing w:before="240" w:after="80"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">'+xmlEsc(ln)+'</w:t></w:r>'; }
-    else { style = '<w:r><w:rPr><w:sz w:val="22"/></w:rPr><w:t xml:space="preserve">'+xmlEsc(ln)+'</w:t></w:r>'; }
+    else { var jc = { left:"left", center:"center", right:"right", justify:"both" }[state.bodyAlign || "left"] || "left"; style = '<w:pPr><w:jc w:val="'+jc+'"/></w:pPr><w:r><w:rPr><w:sz w:val="22"/></w:rPr><w:t xml:space="preserve">'+xmlEsc(ln)+'</w:t></w:r>'; }
     return '<w:p>'+style+'</w:p>';
   }).join("");
   var docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
@@ -986,12 +990,26 @@ function buildPDF(){
   }
   function write(text, size, style, rgb, gapAfter, indent){
     doc.setFont(baseFont, style); doc.setFontSize(size); doc.setTextColor(rgb[0],rgb[1],rgb[2]);
+    var ba = state.bodyAlign || "left";
     var wrapped = doc.splitTextToSize(String(text||""), maxW - (indent||0));
-    wrapped.forEach(function(ln){
-      ensure(lineH);
-      doc.text(ln, margin + (indent||0), y);
-      y += lineH;
-    });
+    if(ba === "justify"){
+      ensure(lineH * wrapped.length);
+      doc.text(String(text||""), margin + (indent||0), y, { align:"justify", maxWidth: maxW - (indent||0) });
+      y += lineH * wrapped.length;
+    } else if(ba === "center" || ba === "right"){
+      var bx = ba === "center" ? pageW/2 : pageW - margin;
+      wrapped.forEach(function(ln){
+        ensure(lineH);
+        doc.text(ln, bx, y, { align: ba });
+        y += lineH;
+      });
+    } else {
+      wrapped.forEach(function(ln){
+        ensure(lineH);
+        doc.text(ln, margin + (indent||0), y);
+        y += lineH;
+      });
+    }
     y += (gapAfter||0);
   }
   function heading(text){
@@ -1032,14 +1050,15 @@ function buildPDF(){
     doc.setFont(baseFont,"normal"); doc.setFontSize(bodySize+0.5); doc.setTextColor(nc[0],nc[1],nc[2]);
     doc.text(p.role.trim(), headX, y, headOpt); y += lineH;
   }
-  if(dokumen && (p.linkedin.trim() || p.location.trim() || p.email.trim() || p.phone.trim() || p.website.trim())){
+  if(dokumen && (p.linkedin.trim() || p.location.trim() || p.email.trim() || p.phone.trim() || p.website.trim() || p.relocation)){
     // Kontak dua kolom ala contoh: kiri LinkedIn + domisili, kanan Email + nomor handphone.
     // Label mengikuti bahasa CV, dan nilai kolom kanan mulai di satu x yang sama agar sejajar.
     var midX = margin + maxW/2;
     var domLabel = contactLabelEN("Domisili","Domicile"), mobLabel = contactLabelEN("Nomor Handphone","Mobile");
     var leftLines = [], rightLines = [];
     if(p.linkedin.trim()) leftLines.push({ text: p.linkedin.trim(), link: true });
-    if(p.location.trim()) leftLines.push({ text: domLabel + " : " + p.location.trim(), link: false });
+    if(p.location.trim()) leftLines.push({ text: domLabel + " : " + p.location.trim() + (p.relocation ? " - (" + relocLabel() + ")" : ""), link: false });
+    if(!p.location.trim() && p.relocation) leftLines.push({ text: "(" + relocLabel() + ")", link: false });
     if(p.website.trim()) leftLines.push({ text: p.website.trim(), link: true });
     if(p.email.trim()) rightLines.push({ label: "Email", value: p.email.trim(), link: true });
     if(p.phone.trim()) rightLines.push({ label: mobLabel, value: p.phone.trim(), link: false });
@@ -1067,11 +1086,6 @@ function buildPDF(){
     doc.setFont(baseFont,"normal"); doc.setFontSize(bodySize-0.5); doc.setTextColor(gray[0],gray[1],gray[2]);
     var cl = doc.splitTextToSize(contactLine(), headTextW);
     cl.forEach(function(ln){ doc.text(ln, headX, y, headOpt); y += lineH; });
-  }
-  if(p.relocation){
-    ensure(lineH);
-    doc.setFont(baseFont,"normal"); doc.setFontSize(bodySize-0.5); doc.setTextColor(0,0,0);
-    doc.text(relocLabel(), headX, y, headOpt); y += lineH;
   }
   if(hasPhoto){
     var photoFmt = photoSrc.indexOf("image/png") >= 0 ? "PNG" : "JPEG";
@@ -1130,12 +1144,28 @@ function buildPDF(){
         lines(it.bullets).forEach(function(b){
           doc.setFont(baseFont,"normal"); doc.setFontSize(bodySize); doc.setTextColor(0,0,0);
           var wrapped = doc.splitTextToSize(b, maxW-6);
-          wrapped.forEach(function(ln, i){
-            ensure(lineH);
-            if(i===0) doc.text("•", margin+1, y);
-            doc.text(ln, margin+6, y);
-            y += lineH;
-          });
+          var bba = state.bodyAlign || "left";
+          if(bba === "justify"){
+            ensure(lineH * wrapped.length);
+            doc.text("•", margin+1, y);
+            doc.text(b, margin+6, y, { align:"justify", maxWidth: maxW-6 });
+            y += lineH * wrapped.length;
+          } else if(bba === "center" || bba === "right"){
+            var bbx = bba === "center" ? pageW/2 + 3 : pageW - margin;
+            wrapped.forEach(function(ln, i){
+              ensure(lineH);
+              if(i===0) doc.text("•", margin+1, y);
+              doc.text(ln, bbx, y, { align: bba });
+              y += lineH;
+            });
+          } else {
+            wrapped.forEach(function(ln, i){
+              ensure(lineH);
+              if(i===0) doc.text("•", margin+1, y);
+              doc.text(ln, margin+6, y);
+              y += lineH;
+            });
+          }
         });
         y += compact ? 1.6 : 2.6;
       } else {
@@ -1364,6 +1394,20 @@ function setHeadAlign(a){
 document.getElementById("alignLeft").addEventListener("click", function(){ setHeadAlign("left"); });
 document.getElementById("alignCenter").addEventListener("click", function(){ setHeadAlign("center"); });
 document.getElementById("alignRight").addEventListener("click", function(){ setHeadAlign("right"); });
+function syncBodyAlignSeg(){
+  var b = state.bodyAlign || "left";
+  ["Left","Center","Right","Justify"].forEach(function(k){
+    var el = document.getElementById("bodyAlign" + k);
+    if(el) el.setAttribute("aria-pressed", b === k.toLowerCase() ? "true" : "false");
+  });
+}
+function setBodyAlign(b){
+  state.bodyAlign = b; syncBodyAlignSeg(); renderPreview(); markSaved();
+}
+document.getElementById("bodyAlignLeft").addEventListener("click", function(){ setBodyAlign("left"); });
+document.getElementById("bodyAlignCenter").addEventListener("click", function(){ setBodyAlign("center"); });
+document.getElementById("bodyAlignRight").addEventListener("click", function(){ setBodyAlign("right"); });
+document.getElementById("bodyAlignJustify").addEventListener("click", function(){ setBodyAlign("justify"); });
 
 
 function toggleAi(open){

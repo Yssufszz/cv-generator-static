@@ -1,12 +1,12 @@
 <!doctype html>
-<!-- CuVys v2.8.0 -->
+<!-- CuVys v2.9.0 -->
 <html lang="id" data-theme="light">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="light dark" />
 <meta name="description" content="CuVys - Buat CV gratis. Isi data, pilih desain, unduh PDF." />
-<link rel="icon" type="image/svg+xml" href="icon.svg?v=v2.8.0" />
+<link rel="icon" type="image/svg+xml" href="icon.svg?v=v2.9.0" />
 <title>CuVys</title>
 <script>try{document.documentElement.dataset.theme=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +15,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<link rel="stylesheet" href="styles.css?v=v2.8.0">
+<link rel="stylesheet" href="styles.css?v=v2.9.0">
 </head>
 <body data-tab="form">
 <div class="auth-gate" id="authGate" hidden>
@@ -74,7 +74,17 @@
         <button type="button" id="alignCenter" aria-pressed="false">Tengah</button>
         <button type="button" id="alignRight" aria-pressed="false">Kanan</button>
       </div>
-      <p class="hint" style="margin:6px 0 0">Hanya nama, jabatan, dan kontak yang pindah. Isi CV tetap rata kiri seperti contoh.</p>
+      <p class="hint" style="margin:6px 0 0">Hanya nama, jabatan, dan kontak yang pindah.</p>
+    </div>
+    <div>
+      <h2>Perataan isi CV</h2>
+      <div class="seg" role="group" aria-label="Perataan isi CV">
+        <button type="button" id="bodyAlignLeft" aria-pressed="true">Rata kiri</button>
+        <button type="button" id="bodyAlignCenter" aria-pressed="false">Tengah</button>
+        <button type="button" id="bodyAlignRight" aria-pressed="false">Rata kanan</button>
+        <button type="button" id="bodyAlignJustify" aria-pressed="false">Justify</button>
+      </div>
+      <p class="hint" style="margin:6px 0 0">Berlaku untuk ringkasan, poin pengalaman, dan isi bagian lainnya. Kepala CV tidak ikut.</p>
     </div>
     <div class="control-row">
       <div>
@@ -201,7 +211,7 @@
       </div>
     </div>
   </div>
-  <footer class="site-foot"><span>Created by Yssufszz</span><span>CuVys v2.8.0</span></footer>
+  <footer class="site-foot"><span>Created by Yssufszz</span><span>CuVys v2.9.0</span></footer>
 </div>
 
 <datalist id="locList"></datalist>
@@ -239,6 +249,6 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="app.js?v=v2.8.0"></script>
+<script src="app.js?v=v2.9.0"></script>
 </body>
 </html>
