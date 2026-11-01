@@ -19,7 +19,7 @@ var DESIGNS = [
   { id:"foto",   name:"Formal + Foto", desc:"Klasik dengan ruang foto 3×4 di kanan atas." },
   { id:"navy",   name:"Formal Navy", desc:"Aksen biru navy pada nama dan judul bagian." },
   { id:"serif",  name:"Formal Serif", desc:"Nama dan judul bagian serif (Georgia), isi tetap Arial." },
-  { id:"ringkas",name:"Formal Ringkas", desc:"Jarak lebih rapat — muat lebih banyak di 1–2 halaman." },
+  { id:"ringkas",name:"Formal Ringkas", desc:"Jarak lebih rapat - muat lebih banyak di 1-2 halaman." },
   { id:"elegan", name:"Formal Elegan", desc:"Serif penuh dengan garis ganda di judul bagian." },
   { id:"modern", name:"Modern Minimal", desc:"Calibri, nama ringkas, garis tipis abu-abu." },
   { id:"hijau",  name:"Formal Hijau Tua", desc:"Aksen hijau tua seperti Formal Navy, tetap formal." },
@@ -90,7 +90,7 @@ var ITEM_FIELDS = {
   ],
   education:[
     {k:"school",label:"Sekolah / Universitas",ph:"Nama institusi"},
-    {k:"degree",label:"Jenjang & Jurusan",ph:"Mis. S1 Hukum — IPK 3,85"},
+    {k:"degree",label:"Jenjang & Jurusan",ph:"Mis. S1 Hukum - IPK 3,85"},
     {k:"location",label:"Lokasi",type:"location",ph:"Ketik lalu pilih kota/kabupaten"},
     {k:"start",label:"Mulai",type:"month"},
     {k:"end",label:"Selesai",type:"monthend"},
@@ -112,7 +112,7 @@ var ITEM_FIELDS = {
   soft:[ {k:"value",label:"Keahlian nonteknis",ph:"Mis. Public speaking"} ],
   languages:[
     {k:"name",label:"Bahasa",ph:"Mis. Inggris"},
-    {k:"level",label:"Tingkat / Bukti",ph:"Mis. Aktif — IELTS 7.0"}
+    {k:"level",label:"Tingkat / Bukti",ph:"Mis. Aktif - IELTS 7.0"}
   ]
 };
 var LIST_SECTIONS = ["experience","related","education","certifications","awards","tech","soft","languages"];
@@ -169,7 +169,7 @@ function fmtMonth(v){
 }
 function dateRange(it){
   var s = fmtMonth(it.start), e = it.endNow ? (state.lang==="id" ? "Sekarang" : "Present") : fmtMonth(it.end);
-  return [s,e].filter(Boolean).join(" – ");
+  return [s,e].filter(Boolean).join(" - ");
 }
 function headingFor(key){
   var c = String(state.customTitles[key]||"").trim();
@@ -190,11 +190,11 @@ function markSaved(){
   saveTimer = setTimeout(function(){
     var d = new Date();
     var hh = String(d.getHours()).padStart(2,"0"), mm = String(d.getMinutes()).padStart(2,"0");
-    el.textContent = "Tersimpan otomatis di browser ini · " + hh + ":" + mm + " — ekspor JSON untuk cadangan lintas perangkat.";
+    el.textContent = "Tersimpan otomatis di browser ini · " + hh + ":" + mm + " - ekspor JSON untuk cadangan lintas perangkat.";
   }, 350);
 }
 function yearsOptions(sel){
-  var out = '<option value="">— Pilih tahun —</option>';
+  var out = '<option value="">- Pilih tahun -</option>';
   for(var y=2032; y>=1980; y--){ out += '<option value="'+y+'"'+(String(sel)===String(y)?' selected':'')+'>'+y+'</option>'; }
   return out;
 }
@@ -208,7 +208,7 @@ function titleHeadHTML(key){
   var warn = isNonStdTitle(key);
   return '<input type="text" class="title-input" data-title-for="'+key+'" value="'+esc(state.customTitles[key]||"")+'" placeholder="'+esc(HEADINGS[state.lang][key])+'" aria-label="Judul bagian (bisa diubah)">'+
     switchHTML(state.sectionEnabled[key],'data-section-toggle="'+key+'"','Aktifkan bagian ini')+
-    '<span class="title-warn" data-title-warn="'+key+'"'+(warn?'':' hidden')+'>Judul ini jauh dari standar ATS (“'+esc(HEADINGS.id[key])+'” / “'+esc(HEADINGS.en[key])+'”) — sebagian sistem mungkin tidak mengenalinya.</span>';
+    '<span class="title-warn" data-title-warn="'+key+'"'+(warn?'':' hidden')+'>Judul ini jauh dari standar ATS (“'+esc(HEADINGS.id[key])+'” / “'+esc(HEADINGS.en[key])+'”) - sebagian sistem mungkin tidak mengenalinya.</span>';
 }
 function personalPanel(){
   var p = state.personal;
@@ -230,8 +230,8 @@ function personalPanel(){
 function summaryPanel(){
   var en = state.sectionEnabled.summary;
   return '<section class="panel'+(en?'':' off')+'" data-panel="summary"><div class="panel-head">'+titleHeadHTML("summary")+'</div>'+
-    '<div class="panel-body"><div class="field" style="margin:0"><label for="summaryText">Isi ringkasan (2–4 kalimat)</label>'+
-    '<textarea id="summaryText" data-summary="1" rows="4" placeholder="Latar belakang, keahlian utama, dan tujuan kariermu — singkat dan jujur.">'+esc(state.summaryText)+'</textarea></div></div></section>';
+    '<div class="panel-body"><div class="field" style="margin:0"><label for="summaryText">Isi ringkasan (2-4 kalimat)</label>'+
+    '<textarea id="summaryText" data-summary="1" rows="4" placeholder="Latar belakang, keahlian utama, dan tujuan kariermu - singkat dan jujur.">'+esc(state.summaryText)+'</textarea></div></div></section>';
 }
 function fieldHTML(key, fd, it){
   var val = it[fd.k];
@@ -239,7 +239,7 @@ function fieldHTML(key, fd, it){
     return '<div class="field full"><label>'+esc(fd.label)+'</label><textarea data-item-field="'+fd.k+'" rows="3" placeholder="'+esc(fd.ph||"")+'">'+esc(val)+'</textarea>'+(fd.hint?'<p class="hint">'+esc(fd.hint)+'</p>':'')+'</div>';
   }
   if(fd.type==="month" || fd.type==="monthend"){
-    var legacy = val && !isMonthVal(val) ? '<p class="hint">Nilai lama: “'+esc(val)+'” — pilih bulan &amp; tahun untuk menggantinya.</p>' : '';
+    var legacy = val && !isMonthVal(val) ? '<p class="hint">Nilai lama: “'+esc(val)+'” - pilih bulan &amp; tahun untuk menggantinya.</p>' : '';
     var dis = (fd.type==="monthend" && it.endNow) ? ' disabled' : '';
     var now = fd.type==="monthend" ? '<label class="now-check"><input type="checkbox" data-item-now="1"'+(it.endNow?' checked':'')+'> Masih berjalan (Sekarang)</label>' : '';
     return '<div class="field"><label>'+esc(fd.label)+'</label><input type="month" data-item-field="'+fd.k+'" value="'+(isMonthVal(val)?esc(val):"")+'" min="1980-01" max="2035-12"'+dis+'>'+now+legacy+'</div>';
@@ -335,7 +335,7 @@ function contactLine(){
 }
 function contactDokumenHTML(){
   // Kontak dua kolom ala contoh dokumen: kiri LinkedIn + domisili, kanan Email + Mobile.
-  // Hanya pakai field yang sudah ada di CuV (linkedin, location, email, phone, website);
+  // Hanya pakai field yang sudah ada di CuVys (linkedin, location, email, phone, website);
   // kalau field kosong, barisnya dihilangkan, bukan diisi data contoh.
   var p = state.personal;
   var li = String(p.linkedin || "").trim(), loc = String(p.location || "").trim();
@@ -367,7 +367,7 @@ function sectionContentHTML(key){
   }
   if(key==="languages"){
     out += '<p>'+items.map(function(it){
-      return esc(it.name.trim()) + (it.level.trim() ? " — "+esc(it.level.trim()) : "");
+      return esc(it.name.trim()) + (it.level.trim() ? " - "+esc(it.level.trim()) : "");
     }).join("  •  ")+'</p>';
     return out;
   }
@@ -387,7 +387,7 @@ function sectionContentHTML(key){
     } else {
       var main = it.name.trim();
       var meta = [it.issuer.trim(), it.year.trim()].filter(Boolean).join(", ");
-      out += '<div class="cv-item"><span class="cv-strong">'+esc(main)+'</span>'+(meta ? ' — '+esc(meta) : '')+
+      out += '<div class="cv-item"><span class="cv-strong">'+esc(main)+'</span>'+(meta ? ' - '+esc(meta) : '')+
         (it.detail.trim() ? '<div class="cv-sub">'+esc(it.detail.trim())+'</div>' : '')+'</div>';
     }
   });
@@ -457,11 +457,11 @@ function atsChecks(){
       if(isMonthVal(it.start) && isMonthVal(it.end) && !it.endNow && it.start > it.end) badDate = true;
     });
   });
-  out.push({ ok: !badDate, text: badDate ? "Ada tanggal selesai yang lebih awal dari tanggal mulai — periksa lagi." : "Urutan tanggal mulai–selesai konsisten." });
-  out.push({ ok: !state.showPhoto, text: state.showPhoto ? "Foto aktif — sebagian ATS tidak memproses foto; matikan untuk lamaran via sistem ATS." : "Tanpa foto — aman untuk ATS." });
+  out.push({ ok: !badDate, text: badDate ? "Ada tanggal selesai yang lebih awal dari tanggal mulai - periksa lagi." : "Urutan tanggal mulai-selesai konsisten." });
+  out.push({ ok: !state.showPhoto, text: state.showPhoto ? "Foto aktif - sebagian ATS tidak memproses foto; matikan untuk lamaran via sistem ATS." : "Tanpa foto - aman untuk ATS." });
   var nonStd = SECTION_KEYS.filter(function(k){ return isNonStdTitle(k); });
   out.push({ ok: nonStd.length===0, text: nonStd.length ? "Judul bagian tidak standar: " + nonStd.map(function(k){ return headingFor(k); }).join(", ") + "." : "Semua judul bagian standar ATS." });
-  out.push({ ok: pageEst<=2, text: "Perkiraan panjang " + pageEst + " halaman" + (pageEst<=2 ? " — ideal untuk CV (1–2 halaman)." : " — lebih dari 2 halaman, pertimbangkan desain Ringkas atau font 10pt.") });
+  out.push({ ok: pageEst<=2, text: "Perkiraan panjang " + pageEst + " halaman" + (pageEst<=2 ? " - ideal untuk CV (1-2 halaman)." : " - lebih dari 2 halaman, pertimbangkan desain Ringkas atau font 10pt.") });
   return out;
 }
 function updateStats(){
@@ -506,7 +506,7 @@ function buildPlainText(){
       return;
     }
     if(key==="languages"){
-      out.push(items.map(function(it){ return it.name.trim() + (it.level.trim() ? " — " + it.level.trim() : ""); }).join(" • "));
+      out.push(items.map(function(it){ return it.name.trim() + (it.level.trim() ? " - " + it.level.trim() : ""); }).join(" • "));
       return;
     }
     items.forEach(function(it){
@@ -522,7 +522,7 @@ function buildPlainText(){
         lines(it.bullets).forEach(function(b){ out.push("• " + b); });
       } else {
         var meta = [it.issuer.trim(), it.year.trim()].filter(Boolean).join(", ");
-        out.push(it.name.trim() + (meta ? " — " + meta : ""));
+        out.push(it.name.trim() + (meta ? " - " + meta : ""));
         if(it.detail.trim()) out.push(it.detail.trim());
       }
       out.push("");
@@ -745,7 +745,7 @@ formRoot.addEventListener("click", function(e){
         ];
         sitem.bullets = (sitem.bullets || "").trim() ? sitem.bullets.trim() + "\n" + starters.join("\n") : starters.join("\n");
         renderForm(); markSaved();
-        toast("3 poin awal ditambahkan — edit angka dan hasilnya agar spesifik.");
+        toast("3 poin awal ditambahkan - edit angka dan hasilnya agar spesifik.");
       }
     }
     return;
@@ -823,11 +823,11 @@ document.getElementById("btnKw").addEventListener("click", function(){
     found.map(function(w){ return '<span class="chip found">✓ '+esc(w)+'</span>'; }).join("")+
     miss.map(function(w){ return '<span class="chip miss">'+esc(w)+'</span>'; }).join("")+
     '</div>'+
-    (miss.length ? '<p class="hint" style="margin-top:8px">Yang belum ada: tambahkan hanya jika memang sesuai pengalamanmu — jangan mengarang.</p><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">' +
+    (miss.length ? '<p class="hint" style="margin-top:8px">Yang belum ada: tambahkan hanya jika memang sesuai pengalamanmu - jangan mengarang.</p><div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">' +
     miss.slice(0, 8).map(function(w){ return '<button type="button" class="btn small" data-kw-add="'+esc(w)+'">+ '+esc(w)+'</button>'; }).join("") + '</div>' : '');
 });
 
-/* ============================== CuV: JSON / teks / DOCX ============================== */
+/* ============================== CuVys: JSON / teks / DOCX ============================== */
 function downloadBlob(blob, filename){
   var url = URL.createObjectURL(blob);
   var a = document.createElement("a");
@@ -843,7 +843,7 @@ document.getElementById("btnExport").addEventListener("click", function(){
   delete data.photoData;
   downloadBlob(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}), fileBase() + "_data.json");
   dirtySinceExport = false;
-  toast("JSON diekspor — simpan sebagai cadangan.");
+  toast("JSON diekspor - simpan sebagai cadangan.");
 });
 document.getElementById("btnImport").addEventListener("click", function(){ document.getElementById("fileImport").click(); });
 document.getElementById("fileImport").addEventListener("change", function(e){
@@ -890,7 +890,7 @@ document.getElementById("fileImport").addEventListener("change", function(e){
 });
 function copyPlainText(){
   var txt = buildPlainText();
-  function done(){ toast("Versi teks polos tersalin — siap ditempel ke portal lamaran."); }
+  function done(){ toast("Versi teks polos tersalin - siap ditempel ke portal lamaran."); }
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(txt).then(done, function(){ fallbackCopy(txt); done(); });
   } else { fallbackCopy(txt); done(); }
@@ -1078,7 +1078,7 @@ function buildPDF(){
       return;
     }
     if(key==="languages"){
-      write(items.map(function(it){ return it.name.trim() + (it.level.trim() ? " — "+it.level.trim() : ""); }).join("  •  "), bodySize, "normal", black, 1.5);
+      write(items.map(function(it){ return it.name.trim() + (it.level.trim() ? " - "+it.level.trim() : ""); }).join("  •  "), bodySize, "normal", black, 1.5);
       return;
     }
     items.forEach(function(it){
@@ -1128,7 +1128,7 @@ function buildPDF(){
         if(meta){
           var mw = doc.getTextWidth(main+" ");
           doc.setFont(baseFont,"normal");
-          doc.text("— "+meta, margin+mw, y);
+          doc.text("- "+meta, margin+mw, y);
         }
         y += lineH;
         if(it.detail.trim()) write(it.detail.trim(), bodySize, "normal", black, 0);
@@ -1138,7 +1138,7 @@ function buildPDF(){
   });
 
   doc.save(fileBase() + "_CV.pdf");
-  toast("PDF terunduh — teksnya bisa diseleksi & dibaca ATS.");
+  toast("PDF terunduh - teksnya bisa diseleksi & dibaca ATS.");
 }
 
 
@@ -1258,7 +1258,7 @@ function aiAnswer(raw){
   }
   if(q.indexOf("ringkasan") >= 0 || q.indexOf("summary") >= 0){
     var s = buildSummary();
-    if(!s){ aiAddMsg("bot", "Isi dulu nama, jabatan, atau satu pengalaman kerja, lalu minta lagi — ringkasannya akan disusun dari data itu."); return; }
+    if(!s){ aiAddMsg("bot", "Isi dulu nama, jabatan, atau satu pengalaman kerja, lalu minta lagi - ringkasannya akan disusun dari data itu."); return; }
     lastSummary = s;
     aiAddMsg("bot", "Ini draf ringkasan dari datamu:<br><br>" + esc(s) + "<br><br>Tekan tombol di bawah kalau mau langsung dipakai, atau edit dulu di panel Ringkasan Profil.", true); return;
   }
@@ -1285,7 +1285,7 @@ function aiAnswer(raw){
     aiAddMsg("bot", "Untuk lamaran via ATS, lebih aman tanpa foto. Foto hanya cocok untuk CV yang dikirim langsung ke perekrut atau untuk portofolio."); return;
   }
   if(q.indexOf("halaman") >= 0 || q.indexOf("panjang") >= 0){
-    aiAddMsg("bot", "Perkiraan sekarang ±" + pageEst + " halaman. Idealnya 1–2 halaman. Kalau lebih, pakai desain Formal Ringkas atau font 10pt, dan pangkas poin yang paling tidak relevan."); return;
+    aiAddMsg("bot", "Perkiraan sekarang ±" + pageEst + " halaman. Idealnya 1-2 halaman. Kalau lebih, pakai desain Formal Ringkas atau font 10pt, dan pangkas poin yang paling tidak relevan."); return;
   }
   if(q.indexOf("desain") >= 0 || q.indexOf("template") >= 0){
     aiAddMsg("bot", "Ada " + DESIGNS.length + " desain: " + DESIGNS.map(function(d){ return d.name; }).join(", ") + ". Untuk sistem ATS, paling aman Klasik ATS atau Formal Ringkas."); return;
@@ -1320,7 +1320,7 @@ document.getElementById("aiLog").addEventListener("click", function(e){
   state.summaryText = lastSummary; syncAllUI(); markSaved();
   aiAddMsg("bot", "Ringkasan sudah dipakai dan muncul di pratinjau.");
 });
-aiAddMsg("bot", "Halo, aku Asisten CV. Coba tekan “Buatkan ringkasan” setelah kamu mengisi nama, jabatan, dan pengalaman — atau tanya apa yang kurang di CV-mu.");
+aiAddMsg("bot", "Halo, aku Asisten CV. Coba tekan “Buatkan ringkasan” setelah kamu mengisi nama, jabatan, dan pengalaman - atau tanya apa yang kurang di CV-mu.");
 
 document.getElementById("kwResult").addEventListener("click", function(e){
   var b = e.target.closest ? e.target.closest("[data-kw-add]") : null;
@@ -1427,7 +1427,7 @@ document.getElementById("btnFocus").addEventListener("click", function(){
 });
 document.getElementById("btnCopySummary").addEventListener("click", function(){
   var t = state.summaryText.trim();
-  if(!t){ toast("Ringkasan masih kosong — isi dulu di panel Ringkasan Profil."); return; }
+  if(!t){ toast("Ringkasan masih kosong - isi dulu di panel Ringkasan Profil."); return; }
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(t).then(function(){ toast("Ringkasan tersalin."); }, function(){ toast("Gagal menyalin ringkasan."); });
   } else { toast("Salin manual dari panel Ringkasan Profil."); }
@@ -1449,7 +1449,7 @@ window.addEventListener("beforeunload", function(e){
    hapus/duplikat/reset draf tidak bisa "bangkit lagi" dari baris lama, dan
    localStorage tetap menjadi cache. RLS di SQL memastikan user hanya bisa
    membaca/menulis baris miliknya sendiri. Kunci service_role TIDAK PERNAH
-   dipakai di sini — hanya anon key (publishable) lewat /api/config atau
+   dipakai di sini - hanya anon key (publishable) lewat /api/config atau
    supabase-config.json, yang memang dirancang Supabase untuk frontend. */
 var supa = null, authUser = null, serverRowId = null, serverSyncTimer = null, authMode = "login";
 function authEls(id){ return document.getElementById(id); }
@@ -1476,7 +1476,7 @@ function setAuthTab(mode){
   if(tl) tl.setAttribute("aria-pressed", mode === "login" ? "true" : "false");
   if(tr) tr.setAttribute("aria-pressed", mode === "register" ? "true" : "false");
   if(sb) sb.textContent = mode === "login" ? "Masuk" : "Daftar";
-  if(ti) ti.textContent = mode === "login" ? "Masuk untuk membuka CV-mu" : "Daftar akun CuV";
+  if(ti) ti.textContent = mode === "login" ? "Masuk untuk membuka CV-mu" : "Daftar akun CuVys";
 }
 async function loadSupabaseConfig(){
   if(window.BERKAS_SUPABASE && window.BERKAS_SUPABASE.url && window.BERKAS_SUPABASE.anonKey){
@@ -1554,7 +1554,7 @@ function markServerSaved(){
   var el = authEls("saveState");
   if(el && authUser){
     var d = new Date();
-    el.textContent = "Tersimpan otomatis ke akun " + authUser.email + " · " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0") + " — dan di browser ini sebagai cache.";
+    el.textContent = "Tersimpan otomatis ke akun " + authUser.email + " · " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0") + " - dan di browser ini sebagai cache.";
   }
 }
 function scheduleServerSync(){
@@ -1577,7 +1577,7 @@ function bindAuthForm(){
     if(!supa){ setAuthMsg("Supabase belum dikonfigurasi."); return; }
     setAuthMsg("Mengirim link reset…");
     var r = await supa.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/" });
-    setAuthMsg(r.error ? ("Gagal mengirim link reset: " + r.error.message) : "Link reset dikirim ke emailmu — cek inbox/spam.");
+    setAuthMsg(r.error ? ("Gagal mengirim link reset: " + r.error.message) : "Link reset dikirim ke emailmu - cek inbox/spam.");
   });
   var lo = authEls("btnLogout");
   if(lo) lo.addEventListener("click", async function(){
@@ -1611,7 +1611,7 @@ async function submitAuth(){
     persistLocal();
     hideGate();
     syncAllUI();
-    toast(loaded ? "Selamat datang kembali — draf dari akunmu dimuat." : "Selamat datang — draf lokalmu disimpan ke akunmu.");
+    toast(loaded ? "Selamat datang kembali - draf dari akunmu dimuat." : "Selamat datang - draf lokalmu disimpan ke akunmu.");
   }catch(e){ setAuthMsg("Terjadi kesalahan, coba lagi."); }
 }
 async function initAuth(restoredLocal){
@@ -1634,7 +1634,7 @@ async function initAuth(restoredLocal){
       // GitHub Pages / lokal: tidak ada function server, jadi jalan mode lokal.
       hideGate();
       syncAllUI();
-      if(restoredLocal) toast("Draf terakhir dipulihkan dari browser ini. Foto tidak ikut tersimpan — pilih ulang kalau perlu.");
+      if(restoredLocal) toast("Draf terakhir dipulihkan dari browser ini. Foto tidak ikut tersimpan - pilih ulang kalau perlu.");
       return;
     }
     if(!window.supabase || !window.supabase.createClient){

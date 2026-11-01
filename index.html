@@ -1,246 +1,62 @@
 <!doctype html>
-<!-- CuV v2.5.0 -->
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="color-scheme" content="light dark" />
-<meta name="description" content="CuV — alat CV statis yang ramah ATS: isi data sendiri, atur bagian, dan unduh PDF gratis." />
-<link rel="icon" href="data:," />
-<title>CuV — CV yang dibaca mesin, ditulis manusia.</title>
-<script>try{document.documentElement.dataset.theme=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}catch(e){}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<link rel="stylesheet" href="styles.css?v=v2.5.0">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<!-- CuVys v2.6.0 -->
+<title>CuVys</title>
+<meta name="description" content="CuVys - Buat CV gratis. Isi data, pilih desain, unduh PDF." />
+<link rel="icon" type="image/png" href="icon.png" />
+<link rel="stylesheet" href="landing.css?v=v2.6.0" />
 </head>
-<body data-tab="form">
-<div class="auth-gate" id="authGate" hidden>
-  <div class="auth-card">
-    <p class="brand-mark">CuV</p>
-    <p class="brand-sub">CV &middot; ATS Friendly</p>
-    <h2 id="authTitle">Masuk untuk membuka CV-mu</h2>
-    <p class="hint" id="authHint">Draf CV tersimpan di akunmu, jadi bisa dibuka dari perangkat mana pun. Belum punya akun? Daftar dulu, gratis.</p>
-    <div class="seg" role="group" aria-label="Pilih masuk atau daftar">
-      <button type="button" id="authTabLogin" aria-pressed="true">Masuk</button>
-      <button type="button" id="authTabRegister" aria-pressed="false">Daftar</button>
-    </div>
-    <label class="hint" for="authEmail">Email</label>
-    <input type="email" id="authEmail" autocomplete="email" placeholder="nama@email.com">
-    <label class="hint" for="authPassword">Password</label>
-    <input type="password" id="authPassword" autocomplete="current-password" placeholder="Minimal 6 karakter">
-    <button class="btn primary" id="authSubmit" type="button">Masuk</button>
-    <button class="btn small" id="authForgot" type="button">Lupa password?</button>
-    <p class="hint" id="authMsg" aria-live="polite"></p>
-    <p class="hint" id="authConfigMsg" hidden>Supabase situs ini belum dikonfigurasi. Di dashboard Vercel, isi environment variable SUPABASE_URL dan SUPABASE_ANON_KEY, lalu deploy ulang.</p>
-  </div>
-</div>
-<div class="wrap">
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><img src="icon.png" alt="" width="32" height="32" /><span>CuVys</span></a>
+  <nav>
+    <a href="app.html">Masuk</a>
+    <a class="btn" href="app.html">Mulai buat CV</a>
+  </nav>
+</header>
 
-  <header class="site-header">
-    <div class="brand">
-      <p class="brand-mark">CuV</p>
-      <p class="brand-sub">CV &middot; ATS Friendly</p>
-    </div>
-    <nav class="header-nav" aria-label="Jalan pintas">
-      <a href="#formCol">Isi Data</a>
-      <a href="#designList">Desain</a>
-      <a href="#paper">Pratinjau</a>
-      <button type="button" id="navAi">Asisten</button>
-    </nav>
-    <div class="toolbar">
-      <button class="btn" id="btnTheme" type="button" aria-label="Ganti mode terang atau gelap"></button>
-      <button class="btn" id="btnFocus" type="button" aria-pressed="false">Mode Fokus</button>
-      <button class="btn" id="btnWizard" type="button" aria-pressed="false">Mode Wizard</button>
-      <span class="hint" id="authUserLabel" hidden></span>
-      <button class="btn" id="btnLogout" type="button" hidden>Keluar</button>
-      <button class="btn primary" id="btnPdf" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-        Unduh PDF
-      </button>
-    </div>
-  </header>
-  <p class="tagline">CV yang dibaca mesin, ditulis manusia.</p>
-  <div class="controls">
-    <div>
-      <h2>Desain CV</h2>
-      <div class="designs" id="designList" role="radiogroup" aria-label="Pilih desain CV"></div>
-    </div>
-    <div>
-      <h2>Posisi kepala CV</h2>
-      <div class="seg" role="group" aria-label="Posisi nama dan kontak di CV">
-        <button type="button" id="alignLeft" aria-pressed="true">Kiri</button>
-        <button type="button" id="alignCenter" aria-pressed="false">Tengah</button>
-        <button type="button" id="alignRight" aria-pressed="false">Kanan</button>
-      </div>
-      <p class="hint" style="margin:6px 0 0">Hanya nama, jabatan, dan kontak yang pindah. Isi CV tetap rata kiri seperti contoh.</p>
-    </div>
-    <div class="control-row">
-      <div>
-        <h2>Bahasa judul bagian</h2>
-        <div class="seg" role="group" aria-label="Bahasa judul bagian">
-          <button type="button" id="langId" aria-pressed="true">Indonesia</button>
-          <button type="button" id="langEn" aria-pressed="false">English</button>
-        </div>
-      </div>
-      <div>
-        <h2>Ukuran font isi</h2>
-        <div class="seg" role="group" aria-label="Ukuran font isi CV">
-          <button type="button" data-fontpt="10" aria-pressed="false">10pt</button>
-          <button type="button" data-fontpt="11" aria-pressed="true">11pt</button>
-          <button type="button" data-fontpt="12" aria-pressed="false">12pt</button>
-        </div>
-      </div>
-      <div>
-        <h2>Draf</h2>
-        <div class="draft-ctl">
-          <select id="draftSel" aria-label="Pilih draf aktif"></select>
-          <input type="text" id="draftName" aria-label="Nama draf aktif" placeholder="Nama draf">
-          <button class="btn small" id="btnDupDraft" type="button">Duplikat</button>
-          <button class="btn small danger" id="btnDelDraft" type="button">Hapus</button>
-        </div>
-      </div>
-    </div>
-    <div class="control-row">
-      <div>
-        <h2>Foto (opsional)</h2>
-        <div class="photo-ctl">
-          <label class="switch"><input type="checkbox" id="photoToggle"><span class="track"></span>Tampilkan foto</label>
-          <button class="btn small" id="btnPhoto" type="button">Pilih foto…</button>
-          <input type="file" id="filePhoto" accept="image/png,image/jpeg,image/webp" class="sr-only" aria-label="Pilih file foto">
-          <span class="hint" id="photoName">Belum ada foto</span>
-        </div>
-        <p class="hint" style="margin:6px 0 0">Mati secara default — CV ATS paling aman tanpa foto.</p>
-      </div>
-      <div>
-        <h2>File</h2>
-        <div class="toolbar">
-          <button class="btn small" id="btnDocx" type="button">Unduh DOCX</button>
-          <button class="btn small" id="btnCopy" type="button">Salin Teks Polos</button>
-          <button class="btn small" id="btnExport" type="button">Ekspor JSON</button>
-          <button class="btn small" id="btnImport" type="button">Impor JSON</button>
-          <input type="file" id="fileImport" accept="application/json,.json" class="sr-only" aria-label="Pilih file JSON untuk diimpor">
-          <button class="btn small" id="btnCopySummary" type="button">Salin ringkasan</button>
-          <button class="btn small danger" id="btnReset" type="button">Kosongkan</button>
-        </div>
-        <p class="save-state" id="saveState" style="margin:6px 0 0">Disimpan otomatis di browser ini — ekspor JSON untuk cadangan lintas perangkat.</p>
-      </div>
-    </div>
-    <div>
-      <h2>Kelengkapan CV</h2>
-      <div class="complete-bar" role="progressbar" aria-label="Kelengkapan CV" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="completeBar"><div class="complete-fill" id="completeFill"></div></div>
-      <div class="complete-meta"><span id="completePct">0% lengkap</span><span class="miss" id="completeMiss"></span></div>
-    </div>
-  </div>
+<main>
+  <section class="hero">
+    <h1>Buat CV yang enak dibaca.</h1>
+    <p>CuVys itu alat buat CV. Kamu isi datamu sendiri, pilih desain, lalu unduh sebagai PDF. Gratis.</p>
+    <p><a class="btn big" href="app.html">Mulai buat CV</a></p>
+    <p class="small">Perlu daftar pakai email, supaya drafmu tersimpan di akunmu.</p>
+  </section>
 
-  <div class="tabs" role="group" aria-label="Tampilan di ponsel">
-    <button type="button" id="tabForm" aria-pressed="true">Isi Data</button>
-    <button type="button" id="tabPreview" aria-pressed="false">Pratinjau CV</button>
-  </div>
+  <section>
+    <h2>Caranya</h2>
+    <ol class="steps">
+      <li><strong>Daftar pakai email.</strong> Akunmu dipakai untuk menyimpan draf.</li>
+      <li><strong>Isi data CV.</strong> Pengalaman, pendidikan, keahlian, dan kontak. Bagian yang tidak perlu bisa dimatikan.</li>
+      <li><strong>Pilih desain dan unduh.</strong> Pratinjau langsung terlihat, lalu unduh sebagai PDF.</li>
+    </ol>
+  </section>
 
-  <div class="layout">
-    <div class="form-col" id="formCol">
-      <div class="wizard-bar" id="wizardBar">
-        <div class="step-lbl"><span id="wizardStepMeta"></span><span id="wizardStepName" style="font-size:15px;color:var(--ink)"></span></div>
-        <button class="btn small" id="wizPrev" type="button">← Sebelumnya</button>
-        <button class="btn small primary" id="wizNext" type="button">Berikutnya →</button>
-      </div>
+  <section>
+    <h2>Yang ada di dalamnya</h2>
+    <ul class="features">
+      <li>17 desain formal satu kolom. Desainnya dibuat agar mudah dibaca sistem lamaran dan manusia.</li>
+      <li>Judul bagian bisa berbahasa Indonesia atau Inggris.</li>
+      <li>Posisi nama dan kontak bisa diatur ke kiri, tengah, atau kanan.</li>
+      <li>Cek kelengkapan CV dan cek kata kunci lowongan. Pengecekan ini tidak mengubah isi CV-mu.</li>
+      <li>Ekspor PDF, DOCX, dan JSON. JSON dipakai sebagai cadangan dan untuk pindah perangkat.</li>
+      <li>Draf tersimpan di akun, jadi bisa dibuka dari perangkat lain.</li>
+      <li>Asisten di browser yang memberi saran dari data yang sudah kamu isi.</li>
+    </ul>
+  </section>
 
-      <div id="formRoot"></div>
+  <section>
+    <h2>Buat siapa</h2>
+    <p>Buat siapa pun yang butuh CV rapi tanpa membayar jasa pembuatan CV. Kalau kamu sudah punya isi CV di kepala, sisanya tinggal mengetik dan memilih desain.</p>
+    <p><a class="btn" href="app.html">Mulai buat CV</a></p>
+  </section>
+</main>
 
-      <section class="panel" id="finishPanel" hidden aria-labelledby="finishTitle">
-        <div class="panel-head"><h3 id="finishTitle">Selesai</h3></div>
-        <div class="panel-body">
-          <div class="toolbar">
-            <button class="btn primary" id="btnPdf2" type="button">Unduh PDF</button>
-            <button class="btn" id="btnDocx2" type="button">Unduh DOCX</button>
-            <button class="btn" id="btnCopy2" type="button">Salin Teks Polos</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel wizard-hide" aria-labelledby="orderTitle">
-        <div class="panel-head"><h3 id="orderTitle">Urutan Bagian</h3></div>
-        <div class="panel-body">
-          <ul class="order-list" id="orderList"></ul>
-        </div>
-      </section>
-
-      <section class="panel wizard-hide" aria-labelledby="atsTitle">
-        <div class="panel-head"><h3 id="atsTitle">Cek ATS</h3></div>
-        <div class="panel-body">
-          <ul class="check-list" id="atsList"></ul>
-        </div>
-      </section>
-
-      <section class="panel wizard-hide" aria-labelledby="kwTitle">
-        <div class="panel-head"><h3 id="kwTitle">Cek Kata Kunci Lowongan</h3></div>
-        <div class="panel-body">
-          <label class="hint" for="jdText" style="display:block;margin:0 0 6px">Tempel deskripsi lowongan di sini — CV-mu tidak diubah, hanya dibandingkan.</label>
-          <textarea class="kw-area" id="jdText" placeholder="Tempel deskripsi lowongan…"></textarea>
-          <div style="margin-top:10px"><button class="btn small primary" id="btnKw" type="button">Bandingkan Kata Kunci</button></div>
-          <div id="kwResult" aria-live="polite"></div>
-        </div>
-      </section>
-    </div>
-
-    <div class="preview-col">
-      <div class="preview-wrap">
-        <div class="preview-bar">
-          <span class="lbl">Pratinjau — A4</span>
-          <span class="zoom-ctl" role="group" aria-label="Zoom pratinjau">
-            <button type="button" data-zoom="0.8" aria-pressed="false">80%</button>
-            <button type="button" data-zoom="0.9" aria-pressed="false">90%</button>
-            <button type="button" data-zoom="1" aria-pressed="true">100%</button>
-            <button type="button" data-zoom="1.15" aria-pressed="false">115%</button>
-          </span>
-          <span class="hint" id="previewMeta"></span>
-        </div>
-        <div class="paper fs-11" id="paper"></div>
-      </div>
-    </div>
-  </div>
-  <footer class="site-foot"><span>Created by Yssufszz</span><span>CuV v2.5.0</span></footer>
-</div>
-
-<datalist id="locList"></datalist>
-
-      <div class="ai-fab-panel" id="aiPanel" hidden role="dialog" aria-label="Asisten CV">
-        <div class="panel-head"><h3 id="aiTitle">Asisten CV</h3><button type="button" class="icon-btn" id="aiClose" aria-label="Tutup Asisten CV">×</button></div>
-        <div class="panel-body">
-          <p class="hint" style="margin:0 0 10px">Sepenuhnya lokal: rekomendasi disusun di browser dari data yang sudah kamu isi, tanpa AI eksternal dan tanpa kirim data ke server.</p>
-          <div class="ai-log" id="aiLog" aria-live="polite"></div>
-          <div class="ai-chips" role="group" aria-label="Perintah cepat">
-            <button type="button" class="btn small" data-ai-chip="ringkasan">Buatkan ringkasan</button>
-            <button type="button" class="btn small" data-ai-chip="perbaiki">Perbaiki ringkasan</button>
-            <button type="button" class="btn small" data-ai-chip="kurang">Apa yang kurang?</button>
-            <button type="button" class="btn small" data-ai-chip="katakerja">Saran kata kerja</button>
-            <button type="button" class="btn small" data-ai-chip="ats">Cek ATS singkat</button>
-          </div>
-          <div class="ai-row">
-            <input type="text" id="aiInput" placeholder="Tanya atau perintahkan, mis. tambah keahlian Excel…" aria-label="Pesan untuk Asisten CV">
-            <button class="btn small primary" id="aiSend" type="button">Kirim</button>
-          </div>
-          <p class="hint" style="margin:8px 0 0">Bisa juga mengeksekusi: “tambah keahlian …”, “tambah bahasa …”, “matikan foto”, “pakai desain Klasik ATS”, “font 10pt”.</p>
-        </div>
-      </div>
-<button class="ai-fab" id="aiFab" type="button" aria-expanded="false" aria-controls="aiPanel">Asisten</button>
-<div class="modal-back" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
-  <div class="modal">
-    <h3 id="resetTitle">Kosongkan semua data?</h3>
-    <p>Semua draf di sesi ini akan dihapus dan tidak bisa dikembalikan, kecuali kamu sudah mengekspor JSON-nya.</p>
-    <div class="row">
-      <button class="btn" id="resetCancel" type="button">Batal</button>
-      <button class="btn primary" id="resetConfirm" type="button" style="background:var(--danger);border-color:var(--danger)">Ya, kosongkan</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<script src="app.js?v=v2.5.0"></script>
+<footer>
+  <p>CuVys v2.6.0 - Dibuat oleh Yssufszz.</p>
+</footer>
 </body>
 </html>
