@@ -1,6 +1,6 @@
 (function(){
 "use strict";
-/* ============================== Data model ============================== */
+/* Data model */
 var uid = 0;
 function nextId(){ return ++uid; }
 
@@ -142,7 +142,7 @@ var wizard = { on:false, step:0 };
 var zoomVal = 1;
 var pageEst = 1;
 
-/* ============================== Helpers ============================== */
+/* Helpers */
 function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 function lines(text){ return String(text||"").split(/\n+/).map(function(l){ return l.replace(/^\s*[•\-\*]\s*/,"").trim(); }).filter(Boolean); }
 function itemHasContent(key, it){
@@ -199,7 +199,7 @@ function yearsOptions(sel){
   return out;
 }
 
-/* ============================== Form rendering ============================== */
+/* Form rendering */
 var formRoot = document.getElementById("formRoot");
 function switchHTML(checked, dataAttr, label){
   return '<label class="switch"><input type="checkbox" '+dataAttr+(checked?' checked':'')+'><span class="track"></span><span class="sr-only">'+esc(label)+'</span></label>';
@@ -295,7 +295,7 @@ function renderOrderList(){
   }).join("");
 }
 
-/* ============================== Wizard ============================== */
+/* Wizard */
 function wizardSteps(){
   var steps = [{key:"__personal", label:"Kontak & Identitas"}];
   state.order.forEach(function(k){ steps.push({key:k, label:headingFor(k)}); });
@@ -329,7 +329,7 @@ function applyWizard(){
   document.getElementById("wizNext").textContent = wizard.step === steps.length-1 ? "Selesai ✓" : "Berikutnya →";
 }
 
-/* ============================== Preview ============================== */
+/* Preview */
 function relocLabel(){ return state.lang==="en" ? "Open for relocation" : "Terbuka untuk relokasi"; }
 function contactLabelEN(idLabel, enLabel){ return state.lang==="en" ? enLabel : idLabel; }
 function contactLine(){
@@ -341,9 +341,9 @@ function contactLine(){
   return segs.join("  •  ");
 }
 function contactDokumenHTML(){
-  // Kontak dua kolom ala contoh dokumen: kiri LinkedIn + domisili, kanan Email + nomor handphone.
-  // Label mengikuti bahasa CV: Domisili / Nomor Handphone (id) atau Domicile / Mobile (en).
-  // Hanya pakai field yang sudah ada di CuVys (linkedin, location, email, phone, website);
+  // Kontak dua kolom dokumen.
+  // Label mengikuti bahasa CV.
+  // Hanya field yang sudah ada;
   // kalau field kosong, barisnya dihilangkan, bukan diisi data contoh.
   var p = state.personal;
   var li = String(p.linkedin || "").trim(), loc = String(p.location || "").trim();
@@ -437,7 +437,7 @@ function renderPreview(){
   updateStats();
 }
 
-/* ============================== Stats: kelengkapan + cek ATS ============================== */
+/* Stats: kelengkapan + cek ATS */
 function completeness(){
   var p = state.personal;
   var checks = [
@@ -495,7 +495,7 @@ function updateStats(){
   }
 }
 
-/* ============================== Plain text (salin + kata kunci + DOCX) ============================== */
+/* Plain text (salin + kata kunci + DOCX) */
 function buildPlainText(){
   var p = state.personal, out = [];
   out.push((p.name.trim() || (state.lang==="en" ? "Full Name" : "Nama Lengkap")).toUpperCase());
@@ -540,7 +540,7 @@ function buildPlainText(){
   return out.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
 }
 
-/* ============================== Design / bahasa / font / tema ============================== */
+/* Design / bahasa / font / tema */
 function renderDesigns(){
   var el = document.getElementById("designList");
   el.innerHTML = DESIGNS.map(function(d){
@@ -614,7 +614,7 @@ document.getElementById("filePhoto").addEventListener("change", function(e){
   e.target.value = "";
 });
 
-/* ============================== Draf ============================== */
+/* Draf */
 function renderDrafts(){
   var sel = document.getElementById("draftSel");
   sel.innerHTML = drafts.map(function(d,i){ return '<option value="'+i+'"'+(i===activeDraft?' selected':'')+'>'+esc(d.name)+'</option>'; }).join("");
@@ -657,7 +657,7 @@ function syncAllUI(){
   syncLangSeg(); syncFontSeg(); syncAlignSeg(); syncBodyAlignSeg(); renderDesigns(); renderDrafts(); renderForm();
 }
 
-/* ============================== Wizard events ============================== */
+/* Wizard events */
 document.getElementById("btnWizard").addEventListener("click", function(){
   wizard.on = !wizard.on;
   if(wizard.on) wizard.step = 0;
@@ -678,7 +678,7 @@ document.getElementById("wizNext").addEventListener("click", function(){
   } else { wizard.step++; applyWizard(); window.scrollTo({top:0,behavior:"smooth"}); }
 });
 
-/* ============================== Form events ============================== */
+/* Form events */
 function findItem(panel, wrap){
   var key = panel.getAttribute("data-panel");
   var id = Number(wrap.getAttribute("data-item-id"));
@@ -810,7 +810,7 @@ function setTab(tab){
 document.getElementById("tabForm").addEventListener("click", function(){ setTab("form"); });
 document.getElementById("tabPreview").addEventListener("click", function(){ setTab("preview"); });
 
-/* ============================== Kata kunci lowongan ============================== */
+/* Kata kunci lowongan */
 var STOP = ("yang dan di ke dari untuk dengan pada adalah ini itu atau dalam sebagai juga akan tidak ada saya kami anda mereka dia dapat lebih telah tahun kerja pengalaman kemampuan memiliki termasuk mampu bekerja tim secara baik sangat perusahaan posisi bidang menggunakan menguasai bahasa inggris indonesia minimal lulusan pendidikan jurusan usia bersedia ditempatkan memiliki pengalaman di bidang terkait the and of to in for with on a an is are will be as at by or we you our their this that from have has job work experience years team skills ability able requirements required preferred bachelor's degree company position responsibilities qualifications").split(" ");
 document.getElementById("btnKw").addEventListener("click", function(){
   var jd = document.getElementById("jdText").value.trim();
@@ -836,7 +836,7 @@ document.getElementById("btnKw").addEventListener("click", function(){
     miss.slice(0, 8).map(function(w){ return '<button type="button" class="btn small" data-kw-add="'+esc(w)+'">+ '+esc(w)+'</button>'; }).join("") + '</div>' : '');
 });
 
-/* ============================== CuVys: JSON / teks / DOCX ============================== */
+/* CuVys: JSON / teks / DOCX */
 function downloadBlob(blob, filename){
   var url = URL.createObjectURL(blob);
   var a = document.createElement("a");
@@ -965,7 +965,7 @@ document.getElementById("resetConfirm").addEventListener("click", function(){
   toast("Semua data dikosongkan.");
 });
 
-/* ============================== PDF (teks asli, ATS-friendly) ============================== */
+/* PDF (teks asli, ATS-friendly) */
 function triggerPdf(){
   if(!window.jspdf || !window.jspdf.jsPDF){ toast("Pustaka PDF belum termuat. Cek koneksi internet lalu coba lagi."); return; }
   try{ buildPDF(); }catch(err){ toast("Gagal membuat PDF. Coba lagi, atau ekspor JSON sebagai cadangan."); }
@@ -1052,7 +1052,7 @@ function buildPDF(){
   }
   if(dokumen && (p.linkedin.trim() || p.location.trim() || p.email.trim() || p.phone.trim() || p.website.trim() || p.relocation)){
     // Kontak dua kolom ala contoh: kiri LinkedIn + domisili, kanan Email + nomor handphone.
-    // Label mengikuti bahasa CV, dan nilai kolom kanan mulai di satu x yang sama agar sejajar.
+    // Nilai kolom kanan sejajar.
     var midX = margin + maxW/2;
     var domLabel = contactLabelEN("Domisili","Domicile"), mobLabel = contactLabelEN("Nomor Handphone","Mobile");
     // Ubah baris kontak jadi item label/nilai agar nilai panjang bisa wrap
@@ -1216,7 +1216,7 @@ function buildPDF(){
 
 
 
-/* ============================== Asisten CV lokal (tanpa AI eksternal) ============================== */
+/* Asisten CV lokal (tanpa AI eksternal) */
 var lastSummary = "";
 function aiListItems(key){
   return state.items[key].filter(function(it){ return it.enabled && itemHasContent(key, it); });
@@ -1452,7 +1452,7 @@ function toggleAi(open){
 document.addEventListener("keydown", function(e){ if(e.key === "Escape") toggleAi(false); });
 
 
-/* ============================== Penyimpanan lokal (dengan fallback) ============================== */
+/* Penyimpanan lokal (dengan fallback) */
 /* Urutan fallback: 1) localStorage di browser ini (bertahan refresh/tutup tab),
    2) kalau localStorage tidak tersedia/penuh, tetap jalan di memori sesi + peringatan tutup tab,
    3) selalu ada Ekspor JSON manual sebagai cadangan lintas perangkat.
@@ -1501,7 +1501,7 @@ function clearLocal(){
   try{ localStorage.removeItem(LOCAL_KEY); }catch(e){}
 }
 
-/* ============================== Mode Fokus + peringatan tutup tab ============================== */
+/* Mode Fokus + peringatan tutup tab */
 var dirtySinceExport = false;
 var _origMarkSaved = markSaved;
 markSaved = function(){ dirtySinceExport = true; _origMarkSaved(); schedulePersist(); scheduleServerSync(); };
@@ -1527,7 +1527,7 @@ window.addEventListener("beforeunload", function(e){
   }
 });
 
-/* ============================== Login wajib via Supabase (v2.3.0) ============================== */
+/* Login wajib via Supabase (v2.3.0) */
 /* Model sync: SATU baris per user di tabel drafts, kolom data berisi seluruh bundle
    {drafts, activeDraft, draftCounter} (foto dipotong, seperti localStorage).
    Alasan: tidak butuh unique constraint tambahan di SQL yang sudah di-run user,
@@ -1750,7 +1750,7 @@ async function initAuth(restoredLocal){
   }
 }
 
-/* ============================== Init ============================== */
+/* Init */
 var locDl = document.getElementById("locList");
 locDl.innerHTML = LOCATIONS.map(function(l){ return '<option value="'+esc(l)+'"></option>'; }).join("");
 themeLabel();
