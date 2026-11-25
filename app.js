@@ -341,10 +341,6 @@ function contactLine(){
   return segs.join("  •  ");
 }
 function contactDokumenHTML(){
-  // Kontak dua kolom dokumen.
-  // Label mengikuti bahasa CV.
-  // Hanya field yang sudah ada;
-  // kalau field kosong, barisnya dihilangkan, bukan diisi data contoh.
   var p = state.personal;
   var li = String(p.linkedin || "").trim(), loc = String(p.location || "").trim();
   var em = String(p.email || "").trim(), ph = String(p.phone || "").trim(), ws = String(p.website || "").trim();
@@ -1015,7 +1011,6 @@ function buildPDF(){
   function heading(text){
     ensure(lineH*2.4);
     if(dokumen){
-      // Ala contoh dokumen: garis di ATAS judul, judul rata tengah, tanpa garis bawah.
       y += 3.2;
       doc.setDrawColor(0,0,0); doc.setLineWidth(0.4);
       doc.line(margin, y, pageW-margin, y);
@@ -1051,12 +1046,8 @@ function buildPDF(){
     doc.text(p.role.trim(), headX, y, headOpt); y += lineH;
   }
   if(dokumen && (p.linkedin.trim() || p.location.trim() || p.email.trim() || p.phone.trim() || p.website.trim() || p.relocation)){
-    // Kontak dua kolom ala contoh: kiri LinkedIn + domisili, kanan Email + nomor handphone.
-    // Nilai kolom kanan sejajar.
     var midX = margin + maxW/2;
     var domLabel = contactLabelEN("Domisili","Domicile"), mobLabel = contactLabelEN("Nomor Handphone","Mobile");
-    // Ubah baris kontak jadi item label/nilai agar nilai panjang bisa wrap
-    // rapi di bawah nilai (bukan menabrak kolom sebelah).
     var leftItems = [], rightItems = [];
     if(p.linkedin.trim()) leftItems.push({ label: null, value: p.linkedin.trim(), link: true });
     if(p.location.trim()) leftItems.push({ label: domLabel, value: p.location.trim() + (p.relocation ? " - (" + relocLabel() + ")" : ""), link: false });
@@ -1071,7 +1062,6 @@ function buildPDF(){
     rightItems.forEach(function(r){ var w = doc.getTextWidth(r.label + " : "); if(w > labelWRight) labelWRight = w; });
     labelWRight += 1;
     function wrapItem(item, colX, colW, labelW){
-      // Kembalikan array baris; tiap baris = array segmen {x, text, link}.
       if(!item.label){
         return doc.splitTextToSize(item.value, colW).map(function(ln){
           return [{ x: colX, text: ln, link: item.link }];
@@ -1144,7 +1134,6 @@ function buildPDF(){
         var dates = dateRange(it);
         ensure(lineH*2);
         if(dokumen && (key==="experience" || key==="related") && it.company.trim()){
-          // Ala contoh: perusahaan (kapital, tebal) di baris sendiri di atas jabatan.
           doc.setFont(baseFont,"bold"); doc.setFontSize(bodySize); doc.setTextColor(0,0,0);
           var compLines = doc.splitTextToSize(it.company.trim().toUpperCase(), maxW);
           compLines.forEach(function(ln){ ensure(lineH); doc.text(ln, margin, y); y += lineH; });
@@ -1160,7 +1149,6 @@ function buildPDF(){
         if(sub && !(dokumen && (key==="experience" || key==="related") && it.company.trim())){
           write(sub, bodySize, "normal", black, 0.4);
         } else if(sub && dokumen && (key==="experience" || key==="related") && it.location.trim()){
-          // Lokasi tetap tersimpan: tampil sebagai baris kecil di bawah jabatan.
           write(it.location.trim(), bodySize, "normal", black, 0.4);
         }
         lines(it.bullets).forEach(function(b){
@@ -1486,7 +1474,6 @@ function restoreLocal(){
     activeDraft = (typeof saved.activeDraft === "number" && saved.activeDraft >= 0 && saved.activeDraft < drafts.length) ? saved.activeDraft : 0;
     draftCounter = typeof saved.draftCounter === "number" ? saved.draftCounter : drafts.length;
     state = drafts[activeDraft].data;
-    // ID item harus unik: lanjutkan counter dari ID terbesar yang tersimpan.
     var maxId = 0;
     drafts.forEach(function(d){
       Object.keys(d.data.items || {}).forEach(function(k){
@@ -1536,7 +1523,7 @@ window.addEventListener("beforeunload", function(e){
    membaca/menulis baris miliknya sendiri. Kunci service_role TIDAK PERNAH
    dipakai di sini - hanya anon key (publishable) lewat /api/config atau
    supabase-config.json, yang memang dirancang Supabase untuk frontend. */
-var supa = null, authUser = null, serverRowId = null, serverSyncTimer = null, authMode = "login";
+var supa = null, authUser = null, serverRowId = null, serverSyncTimer = null, authMode = "login", recoveryMode = false;
 function authEls(id){ return document.getElementById(id); }
 function setAuthMsg(msg){
   var el = authEls("authMsg");
@@ -1556,6 +1543,7 @@ function hideGate(){
   if(lo) lo.hidden = false;
 }
 function setAuthTab(mode){
+  if(recoveryMode){ var sb2 = authEls("authSubmit"), ti2 = authEls("authTitle"); if(sb2) sb2.textContent = "Simpan password baru"; if(ti2) ti2.textContent = "Buat password baru"; return; }
   authMode = mode;
   var tl = authEls("authTabLogin"), tr = authEls("authTabRegister"), sb = authEls("authSubmit"), ti = authEls("authTitle");
   if(tl) tl.setAttribute("aria-pressed", mode === "login" ? "true" : "false");
@@ -1592,7 +1580,6 @@ function applyServerBundle(bundle){
   if(!bundle || !Array.isArray(bundle.drafts) || !bundle.drafts.length) return false;
   var d0 = bundle.drafts[0];
   if(!d0 || !d0.data || !d0.data.personal || !d0.data.items){
-    // Format lama: satu draf langsung di kolom data.
     if(bundle.personal && bundle.items){
       drafts = [{ name: "Draft 1", data: bundle }];
       activeDraft = 0; draftCounter = 1; state = drafts[0].data; return true;
@@ -1661,7 +1648,7 @@ function bindAuthForm(){
     if(!email){ setAuthMsg("Isi email dulu untuk reset password."); return; }
     if(!supa){ setAuthMsg("Supabase belum dikonfigurasi."); return; }
     setAuthMsg("Mengirim link reset…");
-    var r = await supa.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/" });
+    var r = await supa.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/app.html" });
     setAuthMsg(r.error ? ("Gagal mengirim link reset: " + r.error.message) : "Link reset dikirim ke emailmu - cek inbox/spam.");
   });
   var lo = authEls("btnLogout");
@@ -1675,6 +1662,19 @@ async function submitAuth(){
   var password = String((authEls("authPassword") || {}).value || "");
   if(!email || password.length < 6){ setAuthMsg("Isi email dan password minimal 6 karakter."); return; }
   if(!supa){ setAuthMsg("Supabase belum dikonfigurasi."); return; }
+  if(recoveryMode){
+    setAuthMsg("Menyimpan password baru…");
+    try{
+      var u = await supa.auth.updateUser({ password: password });
+      if(u.error){ setAuthMsg("Gagal: " + u.error.message); return; }
+    }catch(e){ setAuthMsg("Terjadi kesalahan, coba lagi."); return; }
+    recoveryMode = false;
+    try{ history.replaceState(null, "", window.location.pathname); }catch(e){}
+    authUser = (await supa.auth.getSession()).data.session.user;
+    var ld = await serverLoad(); if(!ld) await serverSave();
+    persistLocal(); hideGate(); syncAllUI(); toast("Password baru disimpan - kamu sudah masuk.");
+    return;
+  }
   setAuthMsg(authMode === "login" ? "Memeriksa akun…" : "Mendaftarkan akun…");
   try{
     var r = authMode === "login"
@@ -1682,7 +1682,6 @@ async function submitAuth(){
       : await supa.auth.signUp({ email: email, password: password });
     if(r.error){ setAuthMsg("Gagal: " + r.error.message); return; }
     if(!r.data || !r.data.session){
-      // Confirm email aktif: user harus klik link verifikasi dulu.
       setAuthMsg("Akun dibuat. Cek emailmu untuk verifikasi, lalu masuk di sini.");
       setAuthTab("login");
       return;
@@ -1690,7 +1689,6 @@ async function submitAuth(){
     authUser = r.data.session.user;
     var loaded = await serverLoad();
     if(!loaded){
-      // Akun baru / belum ada draf server: unggah draf lokal saat ini sebagai awal.
       await serverSave();
     }
     persistLocal();
@@ -1727,12 +1725,18 @@ async function initAuth(restoredLocal){
       return;
     }
     supa = window.supabase.createClient(cfg.url, cfg.anonKey);
+    if(/type=recovery/.test(window.location.hash || "")){
+      recoveryMode = true; showGate(); setAuthTab("login");
+      var fgb = authEls("authForgot"); if(fgb) fgb.hidden = true;
+      setAuthMsg("Masukkan password baru untuk akunmu.");
+    }
     var sess = await supa.auth.getSession();
     var user = sess && sess.data && sess.data.session ? sess.data.session.user : null;
     if(!user){
-      setAuthMsg("");
+      setAuthMsg(recoveryMode ? "Link reset tidak valid atau sudah dipakai - minta link baru lewat Lupa password?" : "");
       return; // tetap di gate, tunggu login/daftar
     }
+    if(recoveryMode){ var em2 = authEls("authEmail"); if(em2){ em2.value = user.email || ""; em2.disabled = true; } setAuthMsg("Masukkan password baru untuk akunmu."); return; }
     authUser = user;
     var loaded = await serverLoad();
     persistLocal();
